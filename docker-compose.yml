@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  # PostgreSQL 16 database
+  postgres:
+    image: postgres:16-alpine
+    container_name: nexusui-postgres
+    environment:
+      POSTGRES_DB: nexusui
+      POSTGRES_USER: nexusui
+      POSTGRES_PASSWORD: nexusui
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U nexusui']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis 7 cache
+  redis:
+    image: redis:7-alpine
+    container_name: nexusui-redis
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local

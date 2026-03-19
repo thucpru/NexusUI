@@ -1,0 +1,4 @@
+
+> @nexusui/shared@0.1.0 build D:\2026\code\NexusUI\packages\shared
+> tsc --project tsconfig.json
+
