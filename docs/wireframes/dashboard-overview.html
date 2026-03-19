@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NexusUI — Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            bg: {
+              primary:    '#1E1E1E',
+              secondary:  '#2C2C2C',
+              tertiary:   '#383838',
+              quaternary: '#444444',
+            },
+            border: {
+              DEFAULT: '#383838',
+              subtle:  '#333333',
+              strong:  '#4D4D4D',
+            },
+            txt: {
+              primary:    '#FFFFFF',
+              secondary:  '#B3B3B3',
+              tertiary:   '#808080',
+              quaternary: '#666666',
+            },
+            accent: {
+              primary: '#0C8CE9',
+              hover:   '#0D99FF',
+              muted:   'rgba(12,140,233,0.12)',
+              brand:   '#A259FF',
+              success: '#14AE5C',
+              warning: '#F2994A',
+              error:   '#F24822',
+            },
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      background: #1E1E1E;
+      color: #FFFFFF;
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+
+    /* ── Sidebar nav items ── */
+    .sidebar-item {
+      transition: all 150ms ease;
+      border-left: 2px solid transparent;
+    }
+    .sidebar-item:hover {
+      background: #383838;
+      color: #FFFFFF;
+    }
+    .sidebar-item.active {
+      border-left: 2px solid #0C8CE9;
+      background: #383838;
+      color: #FFFFFF;
+      padding-left: 10px;
+    }
+
+    /* ── Stat / project cards ── */
+    .card {
+      border: 1px solid #383838;
+      transition: border-color 150ms ease;
+    }
+    .card:hover {
+      border-color: #4D4D4D;
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #1E1E1E; }
+    ::-webkit-scrollbar-thumb { background: #444444; border-radius: 3px; }
+  </style>
+</head>
+<body class="antialiased flex h-screen overflow-hidden">
+
+  <!-- ══════════════════════════════════════════
+       SIDEBAR  w-60
+  ══════════════════════════════════════════ -->
+  <aside class="w-60 border-r border-[#383838] flex flex-col bg-[#2C2C2C] shrink-0">
+
+    <!-- Logo -->
+    <div class="h-12 flex items-center gap-2.5 px-4 border-b border-[#383838] shrink-0">
+      <div class="w-6 h-6 rounded-lg bg-[#0C8CE9] flex items-center justify-center shrink-0">
+        <!-- NexusUI cube icon -->
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3l9 4.5v9L12 21l-9-4.5v-9L12 3z"/>
+          <path d="M12 3v9m9-4.5L12 12m-9-4.5L12 12"/>
+        </svg>
+      </div>
+      <span class="font-semibold text-sm tracking-tight text-white">NexusUI</span>
+    </div>
+
+    <!-- Nav -->
+    <nav class="flex-1 p-2 space-y-0.5 overflow-y-auto">
+
+      <!-- Dashboard (active) -->
+      <a href="#" class="sidebar-item active flex items-center gap-2.5 py-1.5 pr-3 rounded-md text-sm font-medium">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/>
+          <rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/>
+        </svg>
+        Dashboard
+      </a>
+
+      <!-- Projects -->
+      <a href="project-detail.html" class="sidebar-item flex items-center gap-2.5 px-3 py-1.5 rounded-md text-sm text-[#B3B3B3]">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/>
+        </svg>
+        Projects
+      </a>
+
+      <!-- Design Systems -->
+      <a href="#" class="sidebar-item flex items-center gap-2.5 px-3 py-1.5 rounded-md text-sm text-[#B3B3B3]">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/>
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07M8.46 8.46a5 5 0 0 0 0 7.07"/>
+        </svg>
+        Design Systems
+      </a>
+
+      <!-- AI Generation — purple accent for AI feature -->
+      <a href="#" class="sidebar-item flex items-center gap-2.5 px-3 py-1.5 rounded-md text-sm text-[#B3B3B3]">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#A259FF" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+        </svg>
+        AI Generation
+      </a>
+
+      <!-- GitHub Sync -->
+      <a href="#" class="sidebar-item flex items-center gap-2.5 px-3 py-1.5 rounded-md text-sm text-[#B3B3B3]">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/>
+          <path d="M6 21V9a9 9 0 0 0 9 9"/>
+        </svg>
+        GitHub Sync
+      </a>
+
+      <!-- Divider + Settings -->
+      <div class="pt-2 mt-2 border-t border-[#383838]">
+        <a href="settings-billing.html" class="sidebar-item flex items-center gap-2.5 px-3 py-1.5 rounded-md text-sm text-[#B3B3B3]">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+          Settings
+        </a>
+      </div>
+    </nav>
+
+    <!-- Token Balance -->
+    <div class="px-3 pb-2 shrink-0">
+      <div class="p-3 rounded-lg bg-[#1E1E1E] border border-[#383838]">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs text-[#808080] font-medium">Token Balance</span>
+          <span class="text-[10px] font-semibold font-mono text-[#0D99FF] bg-[rgba(12,140,233,0.12)] px-1.5 py-0.5 rounded">Pro</span>
+        </div>
+        <!-- blue progress bar -->
+        <div class="h-1 rounded-full bg-[#444444] overflow-hidden mb-2">
+          <div class="h-full rounded-full bg-[#0C8CE9] transition-all duration-500" style="width: 62%"></div>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-mono text-white font-medium">6,240</span>
+          <span class="text-xs font-mono text-[#666666]">/ 10,000</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- User -->
+    <div class="px-3 py-3 border-t border-[#383838] flex items-center gap-2.5 shrink-0">
+      <!-- avatar: blue tint bg -->
+      <div class="w-7 h-7 rounded-full bg-[rgba(12,140,233,0.2)] flex items-center justify-center text-[11px] font-semibold text-[#0D99FF] shrink-0">MC</div>
+      <div class="flex-1 min-w-0">
+        <div class="text-xs font-medium text-white truncate">Mika Chen</div>
+        <div class="text-[11px] text-[#808080] truncate">mika@designstack.io</div>
+      </div>
+      <button class="text-[#666666] hover:text-[#B3B3B3] transition-colors">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/>
+        </svg>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ══════════════════════════════════════════
+       MAIN CONTENT
+  ══════════════════════════════════════════ -->
+  <main class="flex-1 flex flex-col overflow-hidden">
+
+    <!-- Top Bar h-12 -->
+    <header class="h-12 flex items-center justify-between px-5 border-b border-[#383838] bg-[#1E1E1E] shrink-0">
+      <h1 class="text-sm font-semibold text-white tracking-tight">Dashboard</h1>
+
+      <div class="flex items-center gap-2">
+        <!-- Search -->
+        <div class="relative">
+          <input
+            type="text"
+            placeholder="Search projects, tokens…"
+            class="w-52 h-7 pl-7 pr-3 rounded-md bg-[#2C2C2C] border border-[#383838] text-xs text-white placeholder-[#666666] focus:outline-none focus:border-[#0C8CE9] transition-colors"
+          >
+          <svg class="absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#666666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+          </svg>
+        </div>
+
+        <!-- Notification bell -->
+        <button class="relative w-7 h-7 flex items-center justify-center rounded-md hover:bg-[#383838] transition-colors">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#B3B3B3" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
+            <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
+          </svg>
+          <!-- red dot -->
+          <span class="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-[#F24822]"></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Content Area -->
+    <div class="flex-1 overflow-y-auto p-5 space-y-5">
+
+      <!-- ── QUICK STATS (4 cards) ── -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+
+        <!-- Active Projects -->
+        <div class="card p-4 rounded-lg bg-[#2C2C2C]">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs text-[#808080] font-medium">Active Projects</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#808080" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/>
+            </svg>
+          </div>
+          <div class="text-2xl font-bold text-white font-mono">7</div>
+          <div class="flex items-center gap-1 mt-1.5">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#14AE5C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+            <span class="text-xs text-[#14AE5C]">+2 this month</span>
+          </div>
+        </div>
+
+        <!-- AI Generations — purple icon for AI -->
+        <div class="card p-4 rounded-lg bg-[#2C2C2C]">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs text-[#808080] font-medium">AI Generations</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#A259FF" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+            </svg>
+          </div>
+          <div class="text-2xl font-bold text-white font-mono">142</div>
+          <div class="flex items-center gap-1 mt-1.5">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#14AE5C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+            <span class="text-xs text-[#14AE5C]">+38 this week</span>
+          </div>
+        </div>
+
+        <!-- Synced Repos -->
+        <div class="card p-4 rounded-lg bg-[#2C2C2C]">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs text-[#808080] font-medium">Synced Repos</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#808080" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/>
+              <path d="M6 21V9a9 9 0 0 0 9 9"/>
+            </svg>
+          </div>
+          <div class="text-2xl font-bold text-white font-mono">5</div>
+          <div class="mt-1.5">
+            <span class="text-xs text-[#808080]">All synced</span>
+          </div>
+        </div>
+
+        <!-- Tokens Used -->
+        <div class="card p-4 rounded-lg bg-[#2C2C2C]">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs text-[#808080] font-medium">Tokens Used</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#808080" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="20" height="14" x="2" y="5" rx="2"/>
+              <line x1="2" x2="22" y1="10" y2="10"/>
+            </svg>
+          </div>
+          <div class="text-2xl font-bold text-white font-mono">3,760</div>
+          <div class="flex items-center gap-1 mt-1.5">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#F2994A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+            <span class="text-xs text-[#F2994A]">62% of monthly limit</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── PROJECTS + ACTIVITY ── -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+        <!-- Projects (2-col span) -->
+        <div class="lg:col-span-2">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-sm font-semibold text-white">Recent Projects</h2>
+            <!-- Blue primary action button -->
+            <button class="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#0C8CE9] hover:bg-[#0D99FF] text-white text-xs font-semibold transition-colors duration-150">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12h14"/><path d="M12 5v14"/>
+              </svg>
+              New Project
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+
+            <!-- Project 1: E-commerce Design System -->
+            <a href="project-detail.html" class="card group block p-4 rounded-lg bg-[#2C2C2C]">
+              <!-- flat color thumbnail — no gradient -->
+              <div class="w-full h-20 rounded-md bg-blue-500/10 mb-3 flex items-center justify-center">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0C8CE9" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" opacity="0.5">
+                  <circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/>
+                  <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
+                </svg>
+              </div>
+              <div class="flex items-center justify-between mb-1">
+                <h3 class="text-xs font-semibold text-white group-hover:text-[#0D99FF] transition-colors truncate pr-2">E-commerce Design System</h3>
+                <span class="flex items-center gap-1 px-1.5 py-0.5 rounded bg-[#14AE5C]/10 text-[#14AE5C] text-[10px] font-medium shrink-0">
+                  <span class="w-1 h-1 rounded-full bg-[#14AE5C]"></span>Synced
+                </span>
+              </div>
+              <p class="text-[11px] text-[#808080] mb-2.5">48 components · 12 tokens · React + Tailwind</p>
+              <div class="flex items-center justify-between text-[11px] text-[#666666]">
+                <span>Last synced 2h ago</span>
+                <span class="flex items-center gap-1">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/>
+                  </svg>
+                  designstack/shop-ui
+                </span>
+              </div>
+            </a>
+
+            <!-- Project 2: SaaS Dashboard Kit -->
+            <a href="project-detail.html" class="card group block p-4 rounded-lg bg-[#2C2C2C]">
+              <div class="w-full h-20 rounded-md bg-purple-500/10 mb-3 flex items-center justify-center">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#A259FF" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" opacity="0.5">
+                  <rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/>
+                  <rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/>
+                </svg>
+              </div>
+              <div class="flex items-center justify-between mb-1">
+                <h3 class="text-xs font-semibold text-white group-hover:text-[#0D99FF] transition-colors truncate pr-2">SaaS Dashboard Kit</h3>
+                <span class="flex items-center gap-1 px-1.5 py-0.5 rounded bg-[#F2994A]/10 text-[#F2994A] text-[10px] font-medium shrink-0">
+                  <span class="w-1 h-1 rounded-full bg-[#F2994A]"></span>Pending
+                </span>
+              </div>
+              <p class="text-[11px] text-[#808080] mb-2.5">32 components · 8 tokens · React + Tailwind</p>
+              <div class="flex items-center justify-between text-[11px] text-[#666666]">
+                <span>3 changes pending</span>
+                <span class="flex items-center gap-1">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/>
+                  </svg>
+                  designstack/dashboard
+                </span>
+              </div>
+            </a>
+
+            <!-- Project 3: Mobile Banking App -->
+            <a href="project-detail.html" class="card group block p-4 rounded-lg bg-[#2C2C2C]">
+              <div class="w-full h-20 rounded-md bg-green-500/10 mb-3 flex items-center justify-center">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#14AE5C" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" opacity="0.5">
+                  <rect width="14" height="20" x="5" y="2" rx="2"/>
+                  <path d="M12 18h.01"/>
+                </svg>
+              </div>
+              <div class="flex items-center justify-between mb-1">
+                <h3 class="text-xs font-semibold text-white group-hover:text-[#0D99FF] transition-colors truncate pr-2">Mobile Banking App</h3>
+                <span class="flex items-center gap-1 px-1.5 py-0.5 rounded bg-[#14AE5C]/10 text-[#14AE5C] text-[10px] font-medium shrink-0">
+                  <span class="w-1 h-1 rounded-full bg-[#14AE5C]"></span>Synced
+                </span>
+              </div>
+              <p class="text-[11px] text-[#808080] mb-2.5">64 components · 15 tokens · React Native</p>
+              <div class="flex items-center justify-between text-[11px] text-[#666666]">
+                <span>Last synced 1d ago</span>
+                <span class="flex items-center gap-1">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/>
+                  </svg>
+                  fintech/mobile
+                </span>
+              </div>
+            </a>
+
+            <!-- Project 4: Marketing Website -->
+            <a href="project-detail.html" class="card group block p-4 rounded-lg bg-[#2C2C2C]">
+              <div class="w-full h-20 rounded-md bg-orange-500/10 mb-3 flex items-center justify-center">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F2994A" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" opacity="0.5">
+                  <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                  <path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+                </svg>
+              </div>
+              <div class="flex items-center justify-between mb-1">
+                <h3 class="text-xs font-semibold text-white group-hover:text-[#0D99FF] transition-colors truncate pr-2">Marketing Website</h3>
+                <span class="flex items-center gap-1 px-1.5 py-0.5 rounded bg-[#F24822]/10 text-[#F24822] text-[10px] font-medium shrink-0">
+                  <span class="w-1 h-1 rounded-full bg-[#F24822]"></span>Error
+                </span>
+              </div>
+              <p class="text-[11px] text-[#808080] mb-2.5">24 components · 6 tokens · Next.js</p>
+              <div class="flex items-center justify-between text-[11px] text-[#666666]">
+                <span>Sync failed 3h ago</span>
+                <span class="flex items-center gap-1">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/>
+                  </svg>
+                  designstack/marketing
+                </span>
+              </div>
+            </a>
+
+          </div>
+        </div>
+
+        <!-- Activity Feed (right column) — no timeline line, clean Figma style -->
+        <div>
+          <h2 class="text-sm font-semibold text-white mb-3">Recent Activity</h2>
+
+          <div class="space-y-0.5">
+
+            <!-- Item 1 — synced success -->
+            <div class="flex items-start gap-2.5 px-2 py-2 rounded-md hover:bg-[#2C2C2C] transition-colors">
+              <div class="w-6 h-6 rounded-full bg-[#14AE5C]/10 flex items-center justify-center shrink-0 mt-0.5">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#14AE5C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 6 9 17l-5-5"/>
+                </svg>
+              </div>
+              <div class="min-w-0">
+                <p class="text-xs text-white leading-snug"><span class="font-medium">E-commerce Design System</span> synced to GitHub</p>
+                <p class="text-[11px] text-[#666666] mt-0.5">PR #47 merged · 2 hours ago</p>
+              </div>
+            </div>
+
+            <!-- Item 2 — AI generation (purple for AI) -->
+            <div class="flex items-start gap-2.5 px-2 py-2 rounded-md hover:bg-[#2C2C2C] transition-colors">
+              <div class="w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5" style="background: rgba(162,89,255,0.12)">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#A259FF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+                </svg>
+              </div>
+              <div class="min-w-0">
+                <p class="text-xs text-white leading-snug">Generated <span class="font-medium text-[#A259FF]">3 login form variants</span></p>
+                <p class="text-[11px] text-[#666666] mt-0.5">30 tokens used · 4 hours ago</p>
+              </div>
+            </div>
+
+            <!-- Item 3 — code changes (blue) -->
+            <div class="flex items-start gap-2.5 px-2 py-2 rounded-md hover:bg-[#2C2C2C] transition-colors">
+              <div class="w-6 h-6 rounded-full bg-[rgba(12,140,233,0.12)] flex items-center justify-center shrink-0 mt-0.5">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#0C8CE9" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/>
+                  <path d="M6 21V9a9 9 0 0 0 9 9"/>
+                </svg>
+              </div>
+              <div class="min-w-0">
+                <p class="text-xs text-white leading-snug"><span class="font-medium">SaaS Dashboard Kit</span> code changes detected</p>
+                <p class="text-[11px] text-[#666666] mt-0.5">3 components updated · 6 hours ago</p>
+              </div>
+            </div>
+
+            <!-- Item 4 — sync error -->
+            <div class="flex items-start gap-2.5 px-2 py-2 rounded-md hover:bg-[#2C2C2C] transition-colors">
+              <div class="w-6 h-6 rounded-full bg-[#F24822]/10 flex items-center justify-center shrink-0 mt-0.5">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#F24822" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="m15 9-6 6"/><path d="m9 9 6 6"/>
+                </svg>
+              </div>
+              <div class="min-w-0">
+                <p class="text-xs text-white leading-snug"><span class="font-medium">Marketing Website</span> sync failed</p>
+                <p class="text-[11px] text-[#666666] mt-0.5">Token mapping conflict · 3 hours ago</p>
+              </div>
+            </div>
+
+            <!-- Item 5 — new project created -->
+            <div class="flex items-start gap-2.5 px-2 py-2 rounded-md hover:bg-[#2C2C2C] transition-colors">
+              <div class="w-6 h-6 rounded-full bg-[rgba(12,140,233,0.12)] flex items-center justify-center shrink-0 mt-0.5">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#0C8CE9" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M5 12h14"/><path d="M12 5v14"/>
+                </svg>
+              </div>
+              <div class="min-w-0">
+                <p class="text-xs text-white leading-snug">New project <span class="font-medium">Mobile Banking App</span> created</p>
+                <p class="text-[11px] text-[#666666] mt-0.5">Connected to fintech/mobile · 1 day ago</p>
+              </div>
+            </div>
+
+            <!-- Item 6 — AI generation (purple) -->
+            <div class="flex items-start gap-2.5 px-2 py-2 rounded-md hover:bg-[#2C2C2C] transition-colors">
+              <div class="w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5" style="background: rgba(162,89,255,0.12)">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#A259FF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+                </svg>
+              </div>
+              <div class="min-w-0">
+                <p class="text-xs text-white leading-snug">Generated <span class="font-medium text-[#A259FF]">5 dashboard card variants</span></p>
+                <p class="text-[11px] text-[#666666] mt-0.5">50 tokens used · 2 days ago</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TOKEN USAGE CHART ── -->
+      <div class="card p-4 rounded-lg bg-[#2C2C2C]">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h2 class="text-sm font-semibold text-white">Token Usage</h2>
+            <p class="text-xs text-[#808080] mt-0.5">This month</p>
+          </div>
+          <!-- Time range selector -->
+          <div class="flex items-center gap-1">
+            <button class="px-2.5 py-1 rounded-md bg-[#383838] text-xs text-white font-medium">7d</button>
+            <button class="px-2.5 py-1 rounded-md text-xs text-[#808080] hover:bg-[#383838] hover:text-white transition-colors">30d</button>
+            <button class="px-2.5 py-1 rounded-md text-xs text-[#808080] hover:bg-[#383838] hover:text-white transition-colors">90d</button>
+          </div>
+        </div>
+
+        <!-- Bar chart — solid blue bars -->
+        <div class="flex items-end gap-1.5 h-28">
+
+          <!-- Mon -->
+          <div class="flex-1 flex flex-col items-center gap-1.5">
+            <div class="w-full rounded-sm bg-[#0C8CE9]" style="height: 40%"></div>
+            <span class="text-[10px] text-[#666666] font-mono">Mon</span>
+          </div>
+          <!-- Tue -->
+          <div class="flex-1 flex flex-col items-center gap-1.5">
+            <div class="w-full rounded-sm bg-[#0C8CE9]" style="height: 65%"></div>
+            <span class="text-[10px] text-[#666666] font-mono">Tue</span>
+          </div>
+          <!-- Wed -->
+          <div class="flex-1 flex flex-col items-center gap-1.5">
+            <div class="w-full rounded-sm bg-[#0C8CE9]" style="height: 30%"></div>
+            <span class="text-[10px] text-[#666666] font-mono">Wed</span>
+          </div>
+          <!-- Thu -->
+          <div class="flex-1 flex flex-col items-center gap-1.5">
+            <div class="w-full rounded-sm bg-[#0C8CE9]" style="height: 85%"></div>
+            <span class="text-[10px] text-[#666666] font-mono">Thu</span>
+          </div>
+          <!-- Fri -->
+          <div class="flex-1 flex flex-col items-center gap-1.5">
+            <div class="w-full rounded-sm bg-[#0C8CE9]" style="height: 55%"></div>
+            <span class="text-[10px] text-[#666666] font-mono">Fri</span>
+          </div>
+          <!-- Sat — weekend: 50% opacity -->
+          <div class="flex-1 flex flex-col items-center gap-1.5">
+            <div class="w-full rounded-sm bg-[#0C8CE9] opacity-50" style="height: 20%"></div>
+            <span class="text-[10px] text-[#666666] font-mono">Sat</span>
+          </div>
+          <!-- Sun — weekend: 50% opacity -->
+          <div class="flex-1 flex flex-col items-center gap-1.5">
+            <div class="w-full rounded-sm bg-[#0C8CE9] opacity-50" style="height: 10%"></div>
+            <span class="text-[10px] text-[#666666] font-mono">Sun</span>
+          </div>
+
+        </div>
+
+        <!-- Chart footer -->
+        <div class="flex items-center gap-5 mt-3 pt-3 border-t border-[#383838]">
+          <div>
+            <span class="text-[11px] text-[#808080]">Peak day</span>
+            <p class="text-xs font-semibold font-mono text-white mt-0.5">Thu — 980</p>
+          </div>
+          <div>
+            <span class="text-[11px] text-[#808080]">Daily avg</span>
+            <p class="text-xs font-semibold font-mono text-white mt-0.5">537</p>
+          </div>
+          <div class="ml-auto flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-sm bg-[#0C8CE9]"></span>
+            <span class="text-[11px] text-[#808080]">Weekday</span>
+            <span class="w-2 h-2 rounded-sm bg-[#0C8CE9] opacity-50 ml-3"></span>
+            <span class="text-[11px] text-[#808080]">Weekend</span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content area -->
+  </main>
+
+</body>
+</html>

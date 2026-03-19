@@ -1,0 +1,22 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "noPropertyAccessFromIndexSignature": false,
+    "strictPropertyInitialization": false,
+    "paths": {
+      "@nexusui/shared": ["../../packages/shared/src/index.ts"],
+      "@nexusui/shared/*": ["../../packages/shared/src/*"],
+      "@nexusui/database": ["../../packages/database/src/index.ts"],
+      "@nexusui/database/*": ["../../packages/database/src/*"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

@@ -1,0 +1,14 @@
+{
+  "name": "NexusUI",
+  "id": "nexusui-plugin",
+  "api": "1.0.0",
+  "editorType": ["figma"],
+  "main": "dist/code.js",
+  "ui": "dist/ui.html",
+  "networkAccess": {
+    "allowedDomains": [
+      "https://api.nexusui.dev",
+      "wss://api.nexusui.dev"
+    ]
+  }
+}

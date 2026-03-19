@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "target": "ES2017",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2017", "DOM"],
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "noPropertyAccessFromIndexSignature": false,
+    "jsxFactory": "h",
+    "jsxFragmentFactory": "Fragment",
+    "jsx": "react",
+    "paths": {
+      "@nexusui/shared": ["../../packages/shared/src/index.ts"],
+      "@nexusui/shared/*": ["../../packages/shared/src/*"]
+    }
+  },
+  "include": ["src/**/*", "figma.d.ts"],
+  "exclude": ["node_modules", "dist"]
+}

@@ -1,0 +1,154 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* ─── CSS Custom Properties ────────────────────────────────────────────────── */
+:root {
+  /* Dark theme (default) — Figma warm grays */
+  --bg-primary: #1E1E1E;
+  --bg-secondary: #2C2C2C;
+  --bg-tertiary: #383838;
+  --bg-quaternary: #444444;
+
+  --border-default: #383838;
+  --border-subtle: #333333;
+  --border-strong: #4D4D4D;
+
+  --text-primary: #FFFFFF;
+  --text-secondary: #B3B3B3;
+  --text-tertiary: #808080;
+  --text-quaternary: #666666;
+
+  --accent-primary: #0C8CE9;
+  --accent-primary-hover: #0D99FF;
+  --accent-primary-muted: rgba(12, 140, 233, 0.12);
+  --accent-brand: #A259FF;
+  --accent-brand-muted: rgba(162, 89, 255, 0.12);
+  --accent-success: #14AE5C;
+  --accent-warning: #F2994A;
+  --accent-error: #F24822;
+
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-full: 9999px;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.6);
+
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+  --ease-default: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Light theme override */
+[data-theme="light"] {
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F8F8FA;
+  --bg-tertiary: #F0F0F4;
+  --bg-quaternary: #E8E8EE;
+
+  --border-default: #E2E2E8;
+  --border-subtle: #EBEBF0;
+  --border-strong: #C8C8D0;
+
+  --text-primary: #111114;
+  --text-secondary: #63637A;
+  --text-tertiary: #9898AA;
+  --text-quaternary: #B8B8C8;
+}
+
+/* ─── Base Styles ───────────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: var(--font-sans);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* ─── Skeleton Loading ─────────────────────────────────────────────────────── */
+/* White-tint shimmer — NOT colored glow */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--bg-secondary) 25%,
+    rgba(255, 255, 255, 0.06) 50%,
+    var(--bg-secondary) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+  border-radius: var(--radius-sm);
+}
+
+/* ─── AI Shimmer ────────────────────────────────────────────────────────────── */
+/* Subtle purple shimmer for AI loading states */
+.ai-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 25%,
+    rgba(162, 89, 255, 0.08) 50%,
+    transparent 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 3s infinite linear;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ─── Scrollbar ─────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-quaternary);
+}
+
+/* ─── Focus Styles ──────────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+/* ─── Clerk Auth Overrides ──────────────────────────────────────────────────── */
+.cl-rootBox {
+  width: 100%;
+}
+.cl-card {
+  background: var(--bg-secondary) !important;
+  border: 1px solid var(--border-default) !important;
+  border-radius: var(--radius-xl) !important;
+  box-shadow: var(--shadow-lg) !important;
+}

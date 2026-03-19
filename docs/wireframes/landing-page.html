@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NexusUI — Design-Code Sync Platform</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            bg: {
+              primary:    '#1E1E1E',
+              secondary:  '#2C2C2C',
+              tertiary:   '#383838',
+              quaternary: '#444444',
+            },
+            border: {
+              DEFAULT: '#383838',
+              subtle:  '#333333',
+              strong:  '#4D4D4D',
+            },
+            txt: {
+              primary:    '#FFFFFF',
+              secondary:  '#B3B3B3',
+              tertiary:   '#808080',
+              quaternary: '#666666',
+            },
+            accent: {
+              primary: '#0C8CE9',
+              hover:   '#0D99FF',
+              muted:   'rgba(12,140,233,0.12)',
+              brand:   '#A259FF',
+              success: '#14AE5C',
+              warning: '#F2994A',
+              error:   '#F24822',
+              info:    '#0C8CE9',
+            },
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    * { box-sizing: border-box; }
+    body { background: #1E1E1E; color: #FFFFFF; font-family: 'Inter', system-ui, sans-serif; }
+
+    /* Nav */
+    .nav-blur {
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      background: rgba(44,44,44,0.9);
+    }
+
+    /* Hero subtle grid */
+    .hero-grid {
+      background-image:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 64px 64px;
+    }
+
+    /* Simple flat card */
+    .card {
+      background: #2C2C2C;
+      border: 1px solid #383838;
+      border-radius: 8px;
+      transition: border-color 150ms ease;
+    }
+    .card:hover { border-color: #4D4D4D; }
+
+    /* Primary CTA button */
+    .btn-primary {
+      background: #0C8CE9;
+      color: #fff;
+      font-weight: 500;
+      transition: background 150ms ease;
+    }
+    .btn-primary:hover { background: #0D99FF; }
+
+    /* Ghost button */
+    .btn-ghost {
+      border: 1px solid #444444;
+      color: #B3B3B3;
+      font-weight: 500;
+      transition: background 150ms ease, color 150ms ease;
+    }
+    .btn-ghost:hover { background: #383838; color: #FFFFFF; }
+
+    /* Code block */
+    .code-block {
+      background: #1E1E1E;
+      border: 1px solid #383838;
+      border-radius: 8px;
+    }
+
+    /* Pro pricing card */
+    .pro-card { border: 1px solid #0C8CE9; }
+
+    /* Scrollbar for code */
+    pre::-webkit-scrollbar { height: 4px; }
+    pre::-webkit-scrollbar-track { background: transparent; }
+    pre::-webkit-scrollbar-thumb { background: #444444; border-radius: 2px; }
+  </style>
+</head>
+<body class="antialiased">
+
+  <!-- ─────────────────────────────────────────────────────────────
+       FLOATING NAVIGATION
+  ───────────────────────────────────────────────────────────────── -->
+  <nav class="fixed top-4 left-4 right-4 z-50 nav-blur border border-[#383838] rounded-xl">
+    <div class="max-w-6xl mx-auto px-5 flex items-center justify-between" style="height:52px;">
+
+      <!-- Logo + links -->
+      <div class="flex items-center gap-8">
+        <a href="#" class="flex items-center gap-2.5 shrink-0">
+          <!-- Logo mark: solid Figma blue bg -->
+          <div class="w-7 h-7 rounded-lg bg-[#0C8CE9] flex items-center justify-center shrink-0">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3l9 4.5v9L12 21l-9-4.5v-9L12 3z"/>
+              <path d="M12 12l9-4.5"/>
+              <path d="M12 12v9"/>
+              <path d="M12 12L3 7.5"/>
+            </svg>
+          </div>
+          <span class="font-semibold text-sm text-white tracking-tight">NexusUI</span>
+        </a>
+        <div class="hidden md:flex items-center gap-5 text-sm text-[#B3B3B3]">
+          <a href="#features"     class="hover:text-white transition-colors duration-150">Features</a>
+          <a href="#how-it-works" class="hover:text-white transition-colors duration-150">How it works</a>
+          <a href="#pricing"      class="hover:text-white transition-colors duration-150">Pricing</a>
+          <a href="#"             class="hover:text-white transition-colors duration-150">Docs</a>
+        </div>
+      </div>
+
+      <!-- Right CTAs -->
+      <div class="flex items-center gap-3">
+        <a href="#" class="text-sm text-[#B3B3B3] hover:text-white transition-colors duration-150">Sign in</a>
+        <a href="#" class="text-sm px-4 py-2 rounded-md btn-primary">Get started free</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ─────────────────────────────────────────────────────────────
+       HERO — SPLIT LAYOUT (text 3/5, visual 2/5)
+  ───────────────────────────────────────────────────────────────── -->
+  <section class="relative pt-28 pb-20 overflow-hidden hero-grid min-h-screen flex items-center">
+    <div class="relative max-w-6xl mx-auto px-6 w-full">
+      <div class="grid lg:grid-cols-5 gap-12 xl:gap-16 items-center">
+
+        <!-- LEFT: copy — 3/5 -->
+        <div class="lg:col-span-3 flex flex-col">
+
+          <!-- Badge — warm gray pill, blue dot -->
+          <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#383838] border border-[#444444] text-xs text-[#B3B3B3] mb-8 w-fit">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#0C8CE9] animate-pulse"></span>
+            Now in Public Beta
+          </div>
+
+          <!-- H1 — white + Figma blue emphasis -->
+          <h1 class="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.08] mb-6">
+            Design systems that<br>
+            <span class="text-[#0D99FF]">sync with your code</span>
+          </h1>
+
+          <!-- Description -->
+          <p class="text-lg text-[#B3B3B3] max-w-lg mb-10 leading-relaxed">
+            Create design tokens in Figma, generate <span class="text-[#A259FF]">AI-powered</span> UI variants, and bidirectionally sync with your GitHub codebase. One source of truth for your entire product team.
+          </p>
+
+          <!-- CTA buttons -->
+          <div class="flex flex-col sm:flex-row items-start gap-3">
+            <a href="#" class="px-6 py-3 rounded-md btn-primary text-sm flex items-center gap-2">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+              </svg>
+              Start building free
+            </a>
+            <a href="#" class="px-6 py-3 rounded-md btn-ghost text-sm flex items-center gap-2">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 19 4.77 5.07 5.07 0 0 0 18.91 1S17.73.65 15 2.48a13.38 13.38 0 0 0-7 0C5.27.65 4.09 1 4.09 1A5.07 5.07 0 0 0 4 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 8 18.13V22"/>
+              </svg>
+              View on GitHub
+            </a>
+          </div>
+
+          <!-- Stats -->
+          <div class="flex items-center gap-6 mt-10 pt-10 border-t border-[#383838]">
+            <div>
+              <div class="text-2xl font-bold text-white">12k+</div>
+              <div class="text-xs text-[#808080] mt-0.5">Developers</div>
+            </div>
+            <div class="w-px h-8 bg-[#383838]"></div>
+            <div>
+              <div class="text-2xl font-bold text-white">94M</div>
+              <div class="text-xs text-[#808080] mt-0.5">Tokens synced</div>
+            </div>
+            <div class="w-px h-8 bg-[#383838]"></div>
+            <div>
+              <div class="text-2xl font-bold text-white">4.9★</div>
+              <div class="text-xs text-[#808080] mt-0.5">Plugin rating</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: dashboard mockup — 2/5 -->
+        <div class="lg:col-span-2">
+          <!-- App window card — flat, warm gray -->
+          <div class="rounded-lg overflow-hidden border border-[#383838] bg-[#2C2C2C]" style="box-shadow:0 1px 3px rgba(0,0,0,0.3);">
+
+            <!-- Window chrome -->
+            <div class="flex items-center gap-2 px-3 py-2.5 border-b border-[#383838] bg-[#2C2C2C]">
+              <div class="flex gap-1.5">
+                <div class="w-2.5 h-2.5 rounded-full bg-[#F24822]/50"></div>
+                <div class="w-2.5 h-2.5 rounded-full bg-[#F2994A]/50"></div>
+                <div class="w-2.5 h-2.5 rounded-full bg-[#14AE5C]/50"></div>
+              </div>
+              <div class="flex-1 flex justify-center">
+                <div class="px-3 py-0.5 rounded bg-[#383838] text-[11px] text-[#808080] font-mono">app.nexusui.dev/dashboard</div>
+              </div>
+            </div>
+
+            <!-- Dashboard body -->
+            <div class="flex" style="min-height:320px;">
+
+              <!-- Sidebar -->
+              <div class="w-40 border-r border-[#383838] p-2.5 space-y-0.5 shrink-0 hidden sm:block">
+                <div class="flex items-center gap-2 px-2 py-1.5 rounded bg-[#383838] text-[11px] text-white font-medium">
+                  <div class="w-3.5 h-3.5 rounded bg-[#0C8CE9]/30 shrink-0"></div> Dashboard
+                </div>
+                <div class="flex items-center gap-2 px-2 py-1.5 rounded text-[11px] text-[#808080]">
+                  <div class="w-3.5 h-3.5 rounded bg-[#444444] shrink-0"></div> Projects
+                </div>
+                <div class="flex items-center gap-2 px-2 py-1.5 rounded text-[11px] text-[#808080]">
+                  <div class="w-3.5 h-3.5 rounded bg-[#444444] shrink-0"></div> Design Systems
+                </div>
+                <div class="flex items-center gap-2 px-2 py-1.5 rounded text-[11px] text-[#808080]">
+                  <div class="w-3.5 h-3.5 rounded bg-[#444444] shrink-0"></div> Settings
+                </div>
+                <!-- Token usage bar -->
+                <div class="mx-1 mt-5 p-2 rounded border border-[#383838]">
+                  <div class="text-[10px] text-[#808080] mb-1.5">Token Usage</div>
+                  <div class="h-1 rounded-full bg-[#444444] overflow-hidden">
+                    <div class="h-full rounded-full bg-[#0C8CE9]" style="width:62%"></div>
+                  </div>
+                  <div class="text-[10px] text-[#808080] mt-1">6,240 / 10,000</div>
+                </div>
+              </div>
+
+              <!-- Main area -->
+              <div class="flex-1 p-3 space-y-2.5 overflow-hidden">
+                <div class="flex items-center justify-between">
+                  <div class="text-[11px] font-semibold text-white">Recent Projects</div>
+                  <div class="px-2 py-0.5 rounded bg-[#0C8CE9] text-[10px] text-white font-medium">+ New</div>
+                </div>
+                <!-- Project cards -->
+                <div class="space-y-1.5">
+                  <div class="p-2.5 rounded border border-[#383838] bg-[#383838]">
+                    <div class="w-full h-10 rounded bg-[#0C8CE9]/10 mb-2"></div>
+                    <div class="text-[10px] font-medium text-white mb-1">E-commerce UI</div>
+                    <div class="flex items-center gap-1">
+                      <span class="w-1.5 h-1.5 rounded-full bg-[#14AE5C]"></span>
+                      <span class="text-[9px] text-[#808080]">Synced · 2m ago</span>
+                    </div>
+                  </div>
+                  <div class="p-2.5 rounded border border-[#383838] bg-[#383838]">
+                    <div class="w-full h-10 rounded bg-[#444444] mb-2"></div>
+                    <div class="text-[10px] font-medium text-white mb-1">SaaS Dashboard</div>
+                    <div class="flex items-center gap-1">
+                      <span class="w-1.5 h-1.5 rounded-full bg-[#F2994A]"></span>
+                      <span class="text-[9px] text-[#808080]">Pending · 1h ago</span>
+                    </div>
+                  </div>
+                  <div class="p-2.5 rounded border border-[#383838] bg-[#383838]">
+                    <div class="w-full h-10 rounded bg-[#444444] mb-2"></div>
+                    <div class="text-[10px] font-medium text-white mb-1">Mobile App</div>
+                    <div class="flex items-center gap-1">
+                      <span class="w-1.5 h-1.5 rounded-full bg-[#14AE5C]"></span>
+                      <span class="text-[9px] text-[#808080]">Synced · 5h ago</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────────────────────────
+       SOCIAL PROOF / LOGO BAR
+  ───────────────────────────────────────────────────────────────── -->
+  <section class="py-12 border-y border-[#383838]">
+    <div class="max-w-6xl mx-auto px-6">
+      <p class="text-xs text-[#666666] uppercase tracking-widest mb-7 text-center">Trusted by teams at</p>
+      <div class="flex flex-wrap items-center justify-center gap-10 md:gap-16">
+        <span class="text-base font-semibold tracking-tight text-white" style="opacity:0.3">Linear</span>
+        <span class="text-base font-semibold tracking-tight text-white" style="opacity:0.3">Vercel</span>
+        <span class="text-base font-semibold tracking-tight text-white" style="opacity:0.3">Stripe</span>
+        <span class="text-base font-semibold tracking-tight text-white" style="opacity:0.3">Raycast</span>
+        <span class="text-base font-semibold tracking-tight text-white" style="opacity:0.3">Supabase</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────────────────────────
+       FEATURES — BENTO / ASYMMETRIC GRID
+  ───────────────────────────────────────────────────────────────── -->
+  <section id="features" class="py-24">
+    <div class="max-w-6xl mx-auto px-6">
+
+      <!-- Section header -->
+      <div class="mb-12">
+        <p class="text-xs text-[#0D99FF] uppercase tracking-widest font-semibold mb-3">Features</p>
+        <h2 class="text-3xl md:text-4xl font-bold tracking-tight mb-4">Everything you need to<br>bridge design and code</h2>
+        <p class="text-[#B3B3B3] max-w-xl leading-relaxed">From Figma tokens to production pull requests, NexusUI keeps your entire workflow in sync without friction.</p>
+      </div>
+
+      <!-- Bento grid -->
+      <div class="grid md:grid-cols-2 gap-4">
+
+        <!-- Item 1: LARGE — left col, row-span-2 on lg -->
+        <div class="card p-6 md:col-span-2 lg:col-span-1 lg:row-span-2 flex flex-col">
+          <!-- Icon container: warm gray bg, blue stroke -->
+          <div class="w-10 h-10 rounded-lg bg-[#383838] flex items-center justify-center mb-5 shrink-0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0D99FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z"/>
+              <path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/>
+              <path d="M12 2v2"/><path d="M12 20v2"/>
+              <path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/>
+              <path d="M2 12h2"/><path d="M20 12h2"/>
+              <path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-base mb-2 text-white">Design System Editor</h3>
+          <p class="text-sm text-[#B3B3B3] leading-relaxed mb-6 max-w-lg">Create and manage design tokens directly inside Figma. Colors, typography, spacing, and component variants all live in one place — automatically mapped to code variables.</p>
+
+          <!-- Inner token preview panel — dark inset -->
+          <div class="mt-auto rounded-lg border border-[#383838] bg-[#1E1E1E] p-4 space-y-3">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[11px] font-medium text-[#808080] uppercase tracking-wide">Token preview</span>
+              <span class="text-[10px] px-2 py-0.5 rounded-full border border-[#0C8CE9]/40 text-[#0D99FF]">Live</span>
+            </div>
+            <!-- Color tokens -->
+            <div class="flex items-center gap-2">
+              <div class="flex gap-1.5">
+                <div class="w-5 h-5 rounded bg-[#0C8CE9]"></div>
+                <div class="w-5 h-5 rounded bg-[#A259FF]/60"></div>
+                <div class="w-5 h-5 rounded bg-[#444444]"></div>
+                <div class="w-5 h-5 rounded bg-[#383838] border border-[#4D4D4D]"></div>
+              </div>
+              <span class="text-[10px] text-[#808080] font-mono">color.brand.*</span>
+            </div>
+            <!-- Typography token -->
+            <div class="flex items-center gap-3">
+              <span class="text-sm font-bold text-white leading-none">Aa</span>
+              <div>
+                <div class="text-[10px] font-mono text-[#0D99FF]">font.heading</div>
+                <div class="text-[10px] text-[#808080]">Inter 700 / 1.08</div>
+              </div>
+            </div>
+            <!-- Spacing token -->
+            <div class="flex items-center gap-2">
+              <div class="flex items-end gap-1">
+                <div class="w-1 h-1 bg-[#0C8CE9]/60 rounded-sm"></div>
+                <div class="w-1 h-2 bg-[#0C8CE9]/60 rounded-sm"></div>
+                <div class="w-1 h-3 bg-[#0C8CE9]/70 rounded-sm"></div>
+                <div class="w-1 h-4 bg-[#0C8CE9]/80 rounded-sm"></div>
+                <div class="w-1 h-5 bg-[#0C8CE9] rounded-sm"></div>
+              </div>
+              <span class="text-[10px] text-[#808080] font-mono">spacing.scale.*</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Item 2: AI — purple icon for AI/premium -->
+        <div class="card p-6">
+          <div class="w-10 h-10 rounded-lg bg-[#383838] flex items-center justify-center mb-4">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#A259FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+              <path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-base mb-2 text-white">AI-Powered Generation</h3>
+          <p class="text-sm text-[#B3B3B3] leading-relaxed">Describe a UI in plain language. NexusUI generates multiple variants constrained by your design system — consistent brand, zero drift.</p>
+        </div>
+
+        <!-- Item 3 -->
+        <div class="card p-6">
+          <div class="w-10 h-10 rounded-lg bg-[#383838] flex items-center justify-center mb-4">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0D99FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="18" cy="18" r="3"/>
+              <circle cx="6" cy="6" r="3"/>
+              <path d="M6 21V9a9 9 0 0 0 9 9"/>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-base mb-2 text-white">Bidirectional Sync</h3>
+          <p class="text-sm text-[#B3B3B3] leading-relaxed">Design-to-code and code-to-design. Push changes as GitHub PRs or pull code changes back into Figma — both directions, always in sync.</p>
+        </div>
+
+        <!-- Item 4 -->
+        <div class="card p-6">
+          <div class="w-10 h-10 rounded-lg bg-[#383838] flex items-center justify-center mb-4">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0D99FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/>
+              <path d="M9 18c-4.51 2-5-2-7-2"/>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-base mb-2 text-white">GitHub Native</h3>
+          <p class="text-sm text-[#B3B3B3] leading-relaxed">Branches, commits, and PRs created automatically. Design changes flow through your existing Git workflow — no new tools to learn.</p>
+        </div>
+
+        <!-- Item 5 -->
+        <div class="card p-6">
+          <div class="w-10 h-10 rounded-lg bg-[#383838] flex items-center justify-center mb-4">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0D99FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="20" height="14" x="2" y="5" rx="2"/>
+              <line x1="2" x2="22" y1="10" y2="10"/>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-base mb-2 text-white">Token-Based Billing</h3>
+          <p class="text-sm text-[#B3B3B3] leading-relaxed">Pay only for AI generations you use. Transparent token metering with a generous free tier — no seat-based surprises.</p>
+        </div>
+
+        <!-- Item 6: full-width — frameworks -->
+        <div class="card p-6 md:col-span-2 flex flex-col md:flex-row gap-6 items-start">
+          <div class="shrink-0">
+            <div class="w-10 h-10 rounded-lg bg-[#383838] flex items-center justify-center mb-4">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0D99FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </div>
+            <h3 class="font-semibold text-base mb-2 text-white">React &amp; Tailwind Output</h3>
+            <p class="text-sm text-[#B3B3B3] leading-relaxed max-w-md">Generate production-ready React components with Tailwind CSS classes. Vue, CSS Modules, and Vanilla Extract support shipping soon.</p>
+          </div>
+          <!-- Framework badges -->
+          <div class="flex flex-wrap gap-2 md:ml-auto md:self-center">
+            <span class="px-3 py-1.5 rounded-lg bg-[#383838] border border-[#444444] text-xs font-medium text-[#B3B3B3] flex items-center gap-1.5">
+              <span class="text-[#0C8CE9] text-[10px]">✦</span> React
+            </span>
+            <span class="px-3 py-1.5 rounded-lg bg-[#383838] border border-[#444444] text-xs font-medium text-[#B3B3B3] flex items-center gap-1.5">
+              <span class="text-[#0C8CE9] text-[10px]">✦</span> Tailwind CSS
+            </span>
+            <span class="px-3 py-1.5 rounded-lg bg-[#383838] border border-[#444444] text-xs text-[#808080] flex items-center gap-1.5">
+              <span class="text-[10px]">◌</span> Vue — soon
+            </span>
+            <span class="px-3 py-1.5 rounded-lg bg-[#383838] border border-[#444444] text-xs text-[#808080] flex items-center gap-1.5">
+              <span class="text-[10px]">◌</span> CSS Modules — soon
+            </span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────────────────────────
+       HOW IT WORKS — 3 SEQUENTIAL STEPS
+  ───────────────────────────────────────────────────────────────── -->
+  <section id="how-it-works" class="py-24 border-t border-[#383838]">
+    <div class="max-w-6xl mx-auto px-6">
+
+      <div class="mb-12">
+        <p class="text-xs text-[#0D99FF] uppercase tracking-widest font-semibold mb-3">How it works</p>
+        <h2 class="text-3xl md:text-4xl font-bold tracking-tight mb-4">Three steps to sync</h2>
+        <p class="text-[#B3B3B3] max-w-lg leading-relaxed">From Figma to production in minutes — no manual handoff, no token drift.</p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-8">
+
+        <!-- Step 1 -->
+        <div>
+          <!-- Solid blue circle — no gradient -->
+          <div class="w-10 h-10 rounded-full bg-[#0C8CE9] text-white font-bold text-sm flex items-center justify-center mb-5">1</div>
+          <h3 class="font-semibold text-lg mb-2 text-white">Define your design system</h3>
+          <p class="text-sm text-[#B3B3B3] leading-relaxed">Use the Figma plugin to create design tokens: colors, typography, spacing, and component variants. NexusUI watches for changes automatically.</p>
+        </div>
+
+        <!-- Step 2 -->
+        <div>
+          <div class="w-10 h-10 rounded-full bg-[#0C8CE9] text-white font-bold text-sm flex items-center justify-center mb-5">2</div>
+          <h3 class="font-semibold text-lg mb-2 text-white">Generate with AI</h3>
+          <p class="text-sm text-[#B3B3B3] leading-relaxed">Describe what you need in plain language. NexusUI generates UI variants constrained by your design system — consistent output every time.</p>
+        </div>
+
+        <!-- Step 3 -->
+        <div>
+          <div class="w-10 h-10 rounded-full bg-[#0C8CE9] text-white font-bold text-sm flex items-center justify-center mb-5">3</div>
+          <h3 class="font-semibold text-lg mb-2 text-white">Sync to GitHub</h3>
+          <p class="text-sm text-[#B3B3B3] leading-relaxed">Push designs as code to GitHub. Get pull requests with clean React and Tailwind components ready for review and merge.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────────────────────────
+       CODE PREVIEW — SIDE BY SIDE
+  ───────────────────────────────────────────────────────────────── -->
+  <section class="py-24 border-t border-[#383838]">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 gap-12 items-start">
+
+        <!-- Left: description -->
+        <div>
+          <p class="text-xs text-[#0D99FF] uppercase tracking-widest font-semibold mb-3">Design to Code</p>
+          <h2 class="text-3xl font-bold tracking-tight mb-4">Your designs become production code</h2>
+          <p class="text-[#B3B3B3] mb-8 leading-relaxed max-w-lg">NexusUI reads your Figma design tokens and generates clean, semantic React components with Tailwind CSS. Every color, font, and spacing value maps precisely to your design system.</p>
+          <div class="space-y-3">
+            <div class="flex items-start gap-3 text-sm">
+              <!-- Blue checkmark -->
+              <svg class="mt-0.5 shrink-0" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0C8CE9" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+              <span class="text-[#B3B3B3]">Automatic PR creation with design change diffs</span>
+            </div>
+            <div class="flex items-start gap-3 text-sm">
+              <svg class="mt-0.5 shrink-0" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0C8CE9" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+              <span class="text-[#B3B3B3]">Token-to-variable mapping fully preserved</span>
+            </div>
+            <div class="flex items-start gap-3 text-sm">
+              <svg class="mt-0.5 shrink-0" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0C8CE9" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+              <span class="text-[#B3B3B3]">Bidirectional conflict resolution built-in</span>
+            </div>
+            <div class="flex items-start gap-3 text-sm">
+              <svg class="mt-0.5 shrink-0" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0C8CE9" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+              <span class="text-[#B3B3B3]">Semantic, accessible output — WCAG AA compliant</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: code block -->
+        <!-- bg #1E1E1E (canvas dark), line numbers area #2C2C2C -->
+        <div class="code-block p-5 font-mono text-sm overflow-x-auto">
+          <div class="flex items-center gap-2 mb-4 text-[#808080] text-xs">
+            <span class="px-2 py-0.5 rounded bg-[#383838] text-[#0D99FF] font-mono">Button.tsx</span>
+            <span class="text-[#666666]">Generated by NexusUI</span>
+          </div>
+          <pre class="text-[#B3B3B3] leading-relaxed text-[13px] overflow-x-auto"><code
+><span style="color:#0D99FF;">import</span> <span style="color:#FFFFFF;">React</span> <span style="color:#0D99FF;">from</span> <span style="color:#14AE5C;">'react'</span><span style="color:#808080;">;</span>
+<span style="color:#0D99FF;">import</span> { <span style="color:#FFFFFF;">cn</span> } <span style="color:#0D99FF;">from</span> <span style="color:#14AE5C;">'@/lib/utils'</span><span style="color:#808080;">;</span>
+
+<span style="color:#0D99FF;">interface</span> <span style="color:#A259FF;">ButtonProps</span> <span style="color:#808080;">{</span>
+  <span style="color:#FFFFFF;">children</span><span style="color:#808080;">:</span> <span style="color:#A259FF;">React.ReactNode</span><span style="color:#808080;">;</span>
+  <span style="color:#FFFFFF;">variant</span><span style="color:#808080;">?:</span> <span style="color:#14AE5C;">'primary'</span> <span style="color:#808080;">|</span> <span style="color:#14AE5C;">'ghost'</span><span style="color:#808080;">;</span>
+<span style="color:#808080;">}</span>
+
+<span style="color:#0D99FF;">export function</span> <span style="color:#0D99FF;">Button</span><span style="color:#808080;">(</span><span style="color:#808080;">{</span> <span style="color:#FFFFFF;">children</span><span style="color:#808080;">,</span> <span style="color:#FFFFFF;">variant</span> <span style="color:#808080;">}</span><span style="color:#808080;">)</span> <span style="color:#808080;">{</span>
+  <span style="color:#0D99FF;">return</span> <span style="color:#808080;">(</span>
+    <span style="color:#808080;">&lt;</span><span style="color:#0D99FF;">button</span>
+      <span style="color:#A259FF;">className</span><span style="color:#808080;">={</span><span style="color:#0D99FF;">cn</span><span style="color:#808080;">(</span>
+        <span style="color:#14AE5C;">"px-4 py-2 rounded-md font-medium"</span><span style="color:#808080;">,</span>
+        <span style="color:#14AE5C;">"transition-colors duration-150"</span><span style="color:#808080;">,</span>
+        variant <span style="color:#808080;">===</span> <span style="color:#14AE5C;">"primary"</span> <span style="color:#808080;">&amp;&amp;</span>
+          <span style="color:#14AE5C;">"bg-[#0C8CE9] text-white hover:bg-[#0D99FF]"</span><span style="color:#808080;">,</span>
+        variant <span style="color:#808080;">===</span> <span style="color:#14AE5C;">"ghost"</span> <span style="color:#808080;">&amp;&amp;</span>
+          <span style="color:#14AE5C;">"border border-[#444444] text-[#B3B3B3]"</span><span style="color:#808080;">,</span>
+      <span style="color:#808080;">)}</span>
+    <span style="color:#808080;">&gt;</span>
+      <span style="color:#808080;">{</span><span style="color:#FFFFFF;">children</span><span style="color:#808080;">}</span>
+    <span style="color:#808080;">&lt;/</span><span style="color:#0D99FF;">button</span><span style="color:#808080;">&gt;</span>
+  <span style="color:#808080;">);</span>
+<span style="color:#808080;">}</span></code></pre>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────────────────────────
+       PRICING — 2-COL + ENTERPRISE BANNER
+  ───────────────────────────────────────────────────────────────── -->
+  <section id="pricing" class="py-24 border-t border-[#383838]">
+    <div class="max-w-6xl mx-auto px-6">
+
+      <div class="mb-12">
+        <p class="text-xs text-[#0D99FF] uppercase tracking-widest font-semibold mb-3">Pricing</p>
+        <h2 class="text-3xl md:text-4xl font-bold tracking-tight mb-4">Simple, transparent pricing</h2>
+        <p class="text-[#B3B3B3]">Start free. Scale when you're ready.</p>
+      </div>
+
+      <!-- 2-col cards -->
+      <div class="grid md:grid-cols-2 gap-4 max-w-3xl mb-4">
+
+        <!-- Free plan -->
+        <div class="p-6 rounded-lg border border-[#383838] bg-[#2C2C2C]">
+          <h3 class="font-semibold text-white mb-1">Free</h3>
+          <p class="text-[#808080] text-sm mb-5">For personal projects</p>
+          <div class="mb-6">
+            <span class="text-3xl font-bold text-white">$0</span>
+            <span class="text-[#808080] text-sm">/month</span>
+          </div>
+          <a href="#" class="block w-full py-2.5 rounded-md border border-[#444444] text-sm font-medium text-center text-[#B3B3B3] hover:bg-[#383838] hover:text-white transition-colors duration-150">
+            Get started
+          </a>
+          <ul class="mt-6 space-y-3 text-sm text-[#B3B3B3]">
+            <li class="flex items-center gap-2.5">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#808080" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+              100 tokens/month
+            </li>
+            <li class="flex items-center gap-2.5">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#808080" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+              1 project
+            </li>
+            <li class="flex items-center gap-2.5">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#808080" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+              Public repos only
+            </li>
+            <li class="flex items-center gap-2.5">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#808080" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+              Community support
+            </li>
+          </ul>
+        </div>
+
+        <!-- Pro plan — Figma blue border, no glow -->
+        <div class="p-6 rounded-lg pro-card bg-[#2C2C2C] relative">
+          <!-- Popular badge — solid blue, no gradient -->
+          <div class="absolute -top-3 left-6 px-3 py-0.5 rounded-full bg-[#0C8CE9] text-xs font-semibold text-white">Popular</div>
+          <h3 class="font-semibold text-white mb-1">Pro</h3>
+          <p class="text-[#808080] text-sm mb-5">For professional teams</p>
+          <div class="mb-6">
+            <span class="text-3xl font-bold text-white">$99</span>
+            <span class="text-[#808080] text-sm">/month</span>
+          </div>
+          <!-- Blue CTA — no gradient, flat -->
+          <a href="#" class="block w-full py-2.5 rounded-md btn-primary text-sm font-medium text-center">
+            Start free trial
+          </a>
+          <ul class="mt-6 space-y-3 text-sm text-[#B3B3B3]">
+            <!-- Blue checks for Pro -->
+            <li class="flex items-center gap-2.5">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0C8CE9" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+              10,000 tokens/month
+            </li>
+            <li class="flex items-center gap-2.5">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0C8CE9" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+              Unlimited projects
+            </li>
+            <li class="flex items-center gap-2.5">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0C8CE9" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+              Private repos
+            </li>
+            <li class="flex items-center gap-2.5">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0C8CE9" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+              Priority support
+            </li>
+            <li class="flex items-center gap-2.5">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0C8CE9" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+              Advanced AI models
+            </li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- Enterprise banner — flat card, no glow -->
+      <div class="max-w-3xl rounded-lg border border-[#383838] bg-[#2C2C2C] p-6 flex flex-col md:flex-row items-start md:items-center gap-6">
+        <div class="flex-1">
+          <h3 class="font-semibold text-white mb-1">Enterprise</h3>
+          <p class="text-sm text-[#B3B3B3] max-w-lg">Custom token limits, team collaboration, SSO &amp; SAML, dedicated SLA, and a named account manager. Built for organizations that need more.</p>
+        </div>
+        <div class="shrink-0 flex flex-col sm:flex-row gap-3">
+          <a href="#" class="px-5 py-2.5 rounded-md border border-[#444444] text-sm font-medium text-[#B3B3B3] hover:bg-[#383838] hover:text-white transition-colors duration-150 text-center">
+            Contact sales
+          </a>
+          <a href="#" class="px-5 py-2.5 rounded-md bg-[#383838] text-sm font-medium text-[#B3B3B3] hover:text-white transition-colors duration-150 text-center">
+            View enterprise docs
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────────────────────────
+       CTA SECTION — flat card, subtle grid, no glow orbs
+  ───────────────────────────────────────────────────────────────── -->
+  <section class="py-24 border-t border-[#383838]">
+    <div class="max-w-6xl mx-auto px-6">
+      <!-- Contained card with subtle grid bg -->
+      <div class="rounded-lg bg-[#2C2C2C] border border-[#383838] p-12 hero-grid relative overflow-hidden">
+        <div class="relative max-w-2xl">
+          <!-- Blue status dot + label -->
+          <div class="flex items-center gap-2 mb-6">
+            <span class="w-2 h-2 rounded-full bg-[#0C8CE9]"></span>
+            <span class="text-xs text-[#0D99FF] font-medium uppercase tracking-widest">Get early access</span>
+          </div>
+          <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-5 leading-[1.1]">
+            Ready to sync your<br>design and code?
+          </h2>
+          <p class="text-[#B3B3B3] mb-8 max-w-lg leading-relaxed">Join the beta and start building with NexusUI today. Free forever for personal use — no credit card required.</p>
+          <div class="flex flex-col sm:flex-row items-start gap-3">
+            <a href="#" class="px-6 py-3 rounded-md btn-primary text-sm">Start building free</a>
+            <a href="#" class="px-6 py-3 rounded-md btn-ghost text-sm">Book a demo</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────────────────────────────────────────────────────────
+       FOOTER — 4-COL GRID
+  ───────────────────────────────────────────────────────────────── -->
+  <footer class="py-12 border-t border-[#383838]">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
+
+        <!-- Brand -->
+        <div>
+          <div class="flex items-center gap-2 mb-4">
+            <div class="w-6 h-6 rounded bg-[#0C8CE9] flex items-center justify-center shrink-0">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 3l9 4.5v9L12 21l-9-4.5v-9L12 3z"/>
+                <path d="M12 12l9-4.5"/><path d="M12 12v9"/><path d="M12 12L3 7.5"/>
+              </svg>
+            </div>
+            <span class="font-semibold text-sm text-white">NexusUI</span>
+          </div>
+          <p class="text-xs text-[#808080] leading-relaxed">Design-code sync platform for modern product teams.</p>
+        </div>
+
+        <!-- Product -->
+        <div>
+          <h4 class="text-xs font-semibold uppercase tracking-widest text-[#808080] mb-4">Product</h4>
+          <ul class="space-y-2.5 text-sm text-[#B3B3B3]">
+            <li><a href="#" class="hover:text-[#0D99FF] transition-colors duration-150">Features</a></li>
+            <li><a href="#" class="hover:text-[#0D99FF] transition-colors duration-150">Pricing</a></li>
+            <li><a href="#" class="hover:text-[#0D99FF] transition-colors duration-150">Changelog</a></li>
+            <li><a href="#" class="hover:text-[#0D99FF] transition-colors duration-150">Roadmap</a></li>
+          </ul>
+        </div>
+
+        <!-- Resources -->
+        <div>
+          <h4 class="text-xs font-semibold uppercase tracking-widest text-[#808080] mb-4">Resources</h4>
+          <ul class="space-y-2.5 text-sm text-[#B3B3B3]">
+            <li><a href="#" class="hover:text-[#0D99FF] transition-colors duration-150">Documentation</a></li>
+            <li><a href="#" class="hover:text-[#0D99FF] transition-colors duration-150">API Reference</a></li>
+            <li><a href="#" class="hover:text-[#0D99FF] transition-colors duration-150">Figma Plugin</a></li>
+            <li><a href="#" class="hover:text-[#0D99FF] transition-colors duration-150">GitHub</a></li>
+          </ul>
+        </div>
+
+        <!-- Company -->
+        <div>
+          <h4 class="text-xs font-semibold uppercase tracking-widest text-[#808080] mb-4">Company</h4>
+          <ul class="space-y-2.5 text-sm text-[#B3B3B3]">
+            <li><a href="#" class="hover:text-[#0D99FF] transition-colors duration-150">About</a></li>
+            <li><a href="#" class="hover:text-[#0D99FF] transition-colors duration-150">Blog</a></li>
+            <li><a href="#" class="hover:text-[#0D99FF] transition-colors duration-150">Privacy</a></li>
+            <li><a href="#" class="hover:text-[#0D99FF] transition-colors duration-150">Terms</a></li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- Footer bottom -->
+      <div class="pt-6 border-t border-[#383838] flex flex-col md:flex-row items-center justify-between gap-4">
+        <p class="text-xs text-[#666666]">&copy; 2026 NexusUI. All rights reserved.</p>
+        <div class="flex items-center gap-4 text-[#666666]">
+          <!-- X (Twitter) -->
+          <a href="#" class="hover:text-[#B3B3B3] transition-colors duration-150" aria-label="X / Twitter">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+          </a>
+          <!-- GitHub -->
+          <a href="#" class="hover:text-[#B3B3B3] transition-colors duration-150" aria-label="GitHub">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+            </svg>
+          </a>
+          <!-- Discord -->
+          <a href="#" class="hover:text-[#B3B3B3] transition-colors duration-150" aria-label="Discord">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

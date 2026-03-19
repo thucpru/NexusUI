@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022"],
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "baseUrl": ".",
+    "paths": {
+      "@nexusui/shared": ["packages/shared/src/index.ts"],
+      "@nexusui/shared/*": ["packages/shared/src/*"],
+      "@nexusui/ui": ["packages/ui/src/index.ts"],
+      "@nexusui/ui/*": ["packages/ui/src/*"],
+      "@nexusui/database": ["packages/database/src/index.ts"],
+      "@nexusui/database/*": ["packages/database/src/*"]
+    }
+  },
+  "exclude": [
+    "node_modules",
+    "**/node_modules",
+    "**/dist",
+    "**/.next"
+  ]
+}

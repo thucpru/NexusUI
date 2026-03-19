@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=320, initial-scale=1.0">
+  <title>NexusUI — Figma Plugin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            fig: {
+              bg:            '#2C2C2C',
+              surface:       '#383838',
+              elevated:      '#444444',
+              border:        '#4D4D4D',
+              borderSubtle:  '#3D3D3D',
+              text:          '#FFFFFF',
+              textSecondary: '#B3B3B3',
+              textTertiary:  '#808080',
+              textQuaternary:'#666666',
+            },
+            accent: {
+              primary: '#0C8CE9',   /* Figma blue — replaces emerald #10B981 */
+              hover:   '#0D99FF',   /* Figma blue hover — replaces #34D399  */
+              muted:   'rgba(12,140,233,0.15)', /* replaces rgba(16,185,129,0.15) */
+              ai:      '#A259FF',   /* Figma purple for AI — replaces #6EE7B7 */
+              link:    '#0D99FF',   /* Figma blue for non-AI links            */
+              success: '#22C55E',
+              warning: '#F59E0B',
+              error:   '#EF4444',
+            },
+          },
+          fontSize: {
+            '2xs': ['10px', '14px'],
+          },
+        },
+      },
+    }
+  </script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 320px; margin: 0 auto; background: #2C2C2C; }
+    body { color: #FFFFFF; font-family: 'Inter', system-ui, sans-serif; font-size: 11px; }
+
+    /* Figma blue primary accent */
+    .accent-bg { background: #0C8CE9; }
+
+    @keyframes ai-shimmer {
+      0%   { background-position: -200% 0; }
+      100% { background-position:  200% 0; }
+    }
+    /* Purple-tinted shimmer for AI generation areas */
+    .ai-shimmer {
+      background: linear-gradient(90deg, #383838 25%, rgba(162,89,255,0.12) 50%, #383838 75%);
+      background-size: 200% 100%;
+      animation: ai-shimmer 2s infinite;
+    }
+
+    .plugin-btn { transition: all 100ms ease; }
+    .plugin-btn:hover  { filter: brightness(1.15); }
+    .plugin-btn:active { transform: scale(0.97); }
+
+    .plugin-input {
+      background: #383838;
+      border: 1px solid #4D4D4D;
+      color: #FFFFFF;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 11px;
+      outline: none;
+      transition: border-color 100ms;
+    }
+    .plugin-input:focus        { border-color: #0C8CE9; }   /* Figma blue focus */
+    .plugin-input::placeholder { color: #666666; }
+
+    .section-divider { border-top: 1px solid #3D3D3D; }
+
+    /* Tab bar — active border Figma blue */
+    .tab-btn        { color: #808080; border-bottom: 2px solid transparent; transition: all 100ms; }
+    .tab-btn:hover  { color: #B3B3B3; }
+    .tab-btn.active { color: #FFFFFF; border-color: #0C8CE9; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar       { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #4D4D4D; border-radius: 2px; }
+
+    /* Token progress bar fill — Figma blue */
+    .token-bar-fill { background: #0C8CE9; }
+
+    /* Variant card hover — Figma blue border */
+    .variant-card:hover { border-color: #0C8CE9; }
+  </style>
+</head>
+<body class="antialiased">
+  <div class="w-[320px] mx-auto bg-fig-bg min-h-screen flex flex-col">
+
+    <!-- =========================================== -->
+    <!-- PLUGIN HEADER                               -->
+    <!-- =========================================== -->
+    <div class="flex items-center justify-between px-3 py-2 border-b border-fig-borderSubtle shrink-0">
+      <!-- Logo + name — cube accent bg is Figma blue -->
+      <div class="flex items-center gap-1.5">
+        <div class="w-5 h-5 rounded bg-[#0C8CE9] flex items-center justify-center shrink-0">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none"
+               stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3l9 4.5v9L12 21l-9-4.5v-9L12 3z"/>
+            <path d="M12 3v18M3 7.5l9 4.5 9-4.5"/>
+          </svg>
+        </div>
+        <span class="font-semibold text-xs tracking-tight text-fig-text">NexusUI</span>
+      </div>
+
+      <!-- Connection status + settings -->
+      <div class="flex items-center gap-1.5">
+        <div class="flex items-center gap-1 px-1.5 py-0.5 rounded"
+             style="background: rgba(12,140,233,0.15);">
+          <span class="w-1.5 h-1.5 rounded-full bg-accent-success"></span>
+          <span class="text-2xs font-medium text-accent-success">Connected</span>
+        </div>
+        <button class="w-6 h-6 rounded flex items-center justify-center hover:bg-fig-surface transition-colors plugin-btn"
+                title="Settings">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+               stroke="#808080" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- =========================================== -->
+    <!-- TABS — active tab border is Figma blue      -->
+    <!-- =========================================== -->
+    <div class="flex items-center border-b border-fig-borderSubtle px-1 shrink-0">
+      <button class="tab-btn active flex-1 py-2 text-center text-2xs font-medium">Design System</button>
+      <button class="tab-btn flex-1 py-2 text-center text-2xs font-medium">AI Generate</button>
+      <button class="tab-btn flex-1 py-2 text-center text-2xs font-medium">Sync</button>
+    </div>
+
+    <!-- =========================================== -->
+    <!-- SCROLLABLE CONTENT                          -->
+    <!-- =========================================== -->
+    <div class="flex-1 overflow-y-auto">
+
+      <!-- ======================================= -->
+      <!-- TAB 1 · DESIGN SYSTEM                   -->
+      <!-- ======================================= -->
+      <div class="p-3 space-y-3">
+
+        <!-- Project selector -->
+        <div>
+          <label class="text-2xs text-fig-textTertiary font-medium block mb-1">Active Project</label>
+          <select class="plugin-input w-full h-7 px-2 text-2xs appearance-none cursor-pointer"
+                  style="background-image: url('data:image/svg+xml;utf8,<svg width=%2210%22 height=%2210%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23808080%22 stroke-width=%222%22 xmlns=%22http://www.w3.org/2000/svg%22><path d=%22m6 9 6 6 6-6%22/></svg>'); background-repeat: no-repeat; background-position: right 6px center;">
+            <option>E-commerce Design System</option>
+            <option>SaaS Dashboard Kit</option>
+            <option>Mobile Banking App</option>
+          </select>
+        </div>
+
+        <!-- ── Colors ── -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-2xs text-fig-textTertiary font-medium uppercase tracking-wider">Colors</span>
+            <!-- Non-AI link — Figma blue #0D99FF -->
+            <button class="text-2xs text-[#0D99FF] hover:text-accent-primary transition-colors">+ Add</button>
+          </div>
+          <div class="space-y-0.5">
+
+            <!-- primary — swatch updated to Figma blue #0C8CE9 -->
+            <div class="flex items-center justify-between px-1.5 py-1 rounded-md hover:bg-fig-surface transition-colors cursor-pointer group">
+              <div class="flex items-center gap-2">
+                <div class="w-5 h-5 rounded border border-fig-border shrink-0" style="background:#0C8CE9;"></div>
+                <span class="text-2xs text-fig-text">primary</span>
+              </div>
+              <span class="text-2xs text-fig-textQuaternary font-mono group-hover:text-fig-textTertiary transition-colors">#0C8CE9</span>
+            </div>
+
+            <!-- secondary #3B82F6 — unchanged -->
+            <div class="flex items-center justify-between px-1.5 py-1 rounded-md hover:bg-fig-surface transition-colors cursor-pointer group">
+              <div class="flex items-center gap-2">
+                <div class="w-5 h-5 rounded border border-fig-border shrink-0" style="background:#3B82F6;"></div>
+                <span class="text-2xs text-fig-text">secondary</span>
+              </div>
+              <span class="text-2xs text-fig-textQuaternary font-mono group-hover:text-fig-textTertiary transition-colors">#3B82F6</span>
+            </div>
+
+            <!-- success #22C55E — unchanged -->
+            <div class="flex items-center justify-between px-1.5 py-1 rounded-md hover:bg-fig-surface transition-colors cursor-pointer group">
+              <div class="flex items-center gap-2">
+                <div class="w-5 h-5 rounded border border-fig-border shrink-0" style="background:#22C55E;"></div>
+                <span class="text-2xs text-fig-text">success</span>
+              </div>
+              <span class="text-2xs text-fig-textQuaternary font-mono group-hover:text-fig-textTertiary transition-colors">#22C55E</span>
+            </div>
+
+            <!-- error #EF4444 — unchanged -->
+            <div class="flex items-center justify-between px-1.5 py-1 rounded-md hover:bg-fig-surface transition-colors cursor-pointer group">
+              <div class="flex items-center gap-2">
+                <div class="w-5 h-5 rounded border border-fig-border shrink-0" style="background:#EF4444;"></div>
+                <span class="text-2xs text-fig-text">error</span>
+              </div>
+              <span class="text-2xs text-fig-textQuaternary font-mono group-hover:text-fig-textTertiary transition-colors">#EF4444</span>
+            </div>
+
+            <!-- bg-primary #18181B — unchanged -->
+            <div class="flex items-center justify-between px-1.5 py-1 rounded-md hover:bg-fig-surface transition-colors cursor-pointer group">
+              <div class="flex items-center gap-2">
+                <div class="w-5 h-5 rounded border border-fig-border shrink-0" style="background:#18181B;"></div>
+                <span class="text-2xs text-fig-text">bg-primary</span>
+              </div>
+              <span class="text-2xs text-fig-textQuaternary font-mono group-hover:text-fig-textTertiary transition-colors">#18181B</span>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- ── Typography ── -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-2xs text-fig-textTertiary font-medium uppercase tracking-wider">Typography</span>
+            <!-- Non-AI link — Figma blue #0D99FF -->
+            <button class="text-2xs text-[#0D99FF] hover:text-accent-primary transition-colors">+ Add</button>
+          </div>
+          <div class="space-y-0.5">
+
+            <div class="flex items-center justify-between px-1.5 py-1 rounded-md hover:bg-fig-surface transition-colors cursor-pointer group">
+              <span class="text-xs font-semibold text-fig-text leading-none">Heading</span>
+              <span class="text-2xs text-fig-textQuaternary font-mono group-hover:text-fig-textTertiary transition-colors">24 / 600</span>
+            </div>
+
+            <div class="flex items-center justify-between px-1.5 py-1 rounded-md hover:bg-fig-surface transition-colors cursor-pointer group">
+              <span class="text-2xs text-fig-text leading-none">Body</span>
+              <span class="text-2xs text-fig-textQuaternary font-mono group-hover:text-fig-textTertiary transition-colors">14 / 400</span>
+            </div>
+
+            <div class="flex items-center justify-between px-1.5 py-1 rounded-md hover:bg-fig-surface transition-colors cursor-pointer group">
+              <span class="text-fig-textSecondary leading-none" style="font-size:10px;">Caption</span>
+              <span class="text-2xs text-fig-textQuaternary font-mono group-hover:text-fig-textTertiary transition-colors">12 / 500</span>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- ── Spacing ── -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-2xs text-fig-textTertiary font-medium uppercase tracking-wider">Spacing</span>
+          </div>
+          <div class="flex flex-wrap gap-1">
+            <div class="px-2 py-1 rounded bg-fig-surface text-2xs text-fig-textSecondary font-mono hover:bg-fig-elevated cursor-pointer transition-colors">4</div>
+            <div class="px-2 py-1 rounded bg-fig-surface text-2xs text-fig-textSecondary font-mono hover:bg-fig-elevated cursor-pointer transition-colors">8</div>
+            <div class="px-2 py-1 rounded bg-fig-surface text-2xs text-fig-textSecondary font-mono hover:bg-fig-elevated cursor-pointer transition-colors">12</div>
+            <div class="px-2 py-1 rounded bg-fig-surface text-2xs text-fig-textSecondary font-mono hover:bg-fig-elevated cursor-pointer transition-colors">16</div>
+            <div class="px-2 py-1 rounded bg-fig-surface text-2xs text-fig-textSecondary font-mono hover:bg-fig-elevated cursor-pointer transition-colors">20</div>
+            <div class="px-2 py-1 rounded bg-fig-surface text-2xs text-fig-textSecondary font-mono hover:bg-fig-elevated cursor-pointer transition-colors">24</div>
+            <div class="px-2 py-1 rounded bg-fig-surface text-2xs text-fig-textSecondary font-mono hover:bg-fig-elevated cursor-pointer transition-colors">32</div>
+            <div class="px-2 py-1 rounded bg-fig-surface text-2xs text-fig-textSecondary font-mono hover:bg-fig-elevated cursor-pointer transition-colors">48</div>
+          </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- Export Tokens -->
+        <button class="plugin-btn w-full h-7 rounded-md bg-fig-surface border border-fig-border
+                        text-2xs text-fig-textSecondary font-medium
+                        flex items-center justify-center gap-1.5
+                        hover:bg-fig-elevated">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" x2="12" y1="15" y2="3"/>
+          </svg>
+          Export Tokens as JSON
+        </button>
+      </div><!-- /Tab 1 -->
+
+      <!-- ======================================= -->
+      <!-- DIVIDER between Tab 1 and Tab 2          -->
+      <!-- ======================================= -->
+      <div class="section-divider mx-3"></div>
+
+      <!-- ======================================= -->
+      <!-- TAB 2 · AI GENERATE                     -->
+      <!-- ======================================= -->
+      <div class="p-3 space-y-3">
+
+        <!-- Section title — AI sparkle uses Figma purple #A259FF -->
+        <div class="flex items-center gap-1.5">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+               stroke="#A259FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+          </svg>
+          <span class="text-xs font-semibold text-fig-text">AI Generate</span>
+        </div>
+
+        <!-- Prompt textarea — focus ring is Figma blue via .plugin-input:focus -->
+        <div>
+          <label class="text-2xs text-fig-textTertiary font-medium block mb-1">Describe what you need</label>
+          <textarea class="plugin-input w-full p-2 text-2xs resize-none" rows="3"
+                    placeholder="e.g. A product card with image, title, price, rating stars, and add-to-cart button..."></textarea>
+        </div>
+
+        <!-- Variants stepper -->
+        <div class="flex items-center justify-between">
+          <label class="text-2xs text-fig-textTertiary font-medium">Variants</label>
+          <div class="flex items-center gap-1">
+            <button class="plugin-btn w-6 h-6 rounded bg-fig-surface border border-fig-border
+                            flex items-center justify-center text-fig-textSecondary text-xs
+                            hover:bg-fig-elevated transition-colors">−</button>
+            <span class="w-6 text-center text-2xs font-mono text-fig-text">3</span>
+            <button class="plugin-btn w-6 h-6 rounded bg-fig-surface border border-fig-border
+                            flex items-center justify-center text-fig-textSecondary text-xs
+                            hover:bg-fig-elevated transition-colors">+</button>
+          </div>
+        </div>
+
+        <!-- Framework select -->
+        <div class="flex items-center justify-between">
+          <label class="text-2xs text-fig-textTertiary font-medium">Output</label>
+          <select class="plugin-input h-6 px-2 text-2xs appearance-none cursor-pointer w-32"
+                  style="background-image: url('data:image/svg+xml;utf8,<svg width=%228%22 height=%228%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23808080%22 stroke-width=%222%22 xmlns=%22http://www.w3.org/2000/svg%22><path d=%22m6 9 6 6 6-6%22/></svg>'); background-repeat: no-repeat; background-position: right 4px center;">
+            <option>React + Tailwind</option>
+            <option>Vue + Tailwind</option>
+            <option>HTML + CSS</option>
+          </select>
+        </div>
+
+        <!-- Generate button — Figma blue, AI sparkle icon -->
+        <button class="plugin-btn w-full h-8 rounded-md bg-[#0C8CE9] text-white text-xs font-medium
+                        flex items-center justify-center gap-1.5">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+          </svg>
+          Generate (30 tokens)
+        </button>
+
+        <!-- Token balance -->
+        <div class="flex items-center justify-between px-1">
+          <span class="text-2xs text-fig-textQuaternary">Balance</span>
+          <span class="text-2xs text-fig-textSecondary font-mono">6,240 / 10,000</span>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- Generated Variants -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-2xs text-fig-textTertiary font-medium uppercase tracking-wider">Generated Variants</span>
+            <span class="text-2xs text-fig-textQuaternary">3 results</span>
+          </div>
+
+          <div class="space-y-2">
+
+            <!-- Variant A — vertical card, full-width image, purple-tinted AI shimmer -->
+            <div class="variant-card rounded-md border border-fig-border overflow-hidden cursor-pointer
+                        group transition-colors duration-100">
+              <div class="h-28 bg-fig-surface ai-shimmer flex items-center justify-center p-3">
+                <div class="w-full bg-fig-bg rounded-md p-2">
+                  <div class="w-full h-11 rounded bg-fig-elevated mb-2"></div>
+                  <div class="h-1.5 w-3/4 rounded bg-fig-textQuaternary mb-1.5"></div>
+                  <div class="h-1.5 w-1/2 rounded bg-fig-textQuaternary mb-2"></div>
+                  <div class="flex items-center justify-between">
+                    <!-- Price chip — Figma blue tint -->
+                    <div class="h-2 w-10 rounded" style="background:rgba(12,140,233,0.4);"></div>
+                    <!-- CTA chip — Figma blue tint -->
+                    <div class="h-4 w-14 rounded" style="background:rgba(12,140,233,0.3);"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="px-2 py-1.5 bg-fig-surface flex items-center justify-between border-t border-fig-borderSubtle">
+                <span class="text-2xs text-fig-text font-medium">Variant A</span>
+                <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <!-- Insert — non-AI link, Figma blue #0D99FF -->
+                  <button class="text-2xs text-[#0D99FF] hover:text-accent-primary transition-colors px-1">Insert</button>
+                  <!-- Code — non-AI link, Figma blue #0D99FF -->
+                  <button class="text-2xs text-[#0D99FF] hover:text-accent-primary transition-colors px-1">Code</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Variant B — horizontal layout with stars -->
+            <div class="variant-card rounded-md border border-fig-border overflow-hidden cursor-pointer
+                        group transition-colors duration-100">
+              <div class="h-28 bg-fig-surface flex items-center justify-center p-3">
+                <div class="w-full bg-fig-bg rounded-md p-2 flex gap-2">
+                  <div class="w-12 h-16 rounded bg-fig-elevated shrink-0"></div>
+                  <div class="flex-1 min-w-0">
+                    <div class="h-1.5 w-full rounded bg-fig-textQuaternary mb-1.5"></div>
+                    <div class="h-1.5 w-3/4 rounded bg-fig-textQuaternary mb-2"></div>
+                    <!-- Rating stars — amber, unchanged -->
+                    <div class="flex gap-0.5 mb-2">
+                      <div class="w-2 h-2 rounded-sm" style="background:rgba(245,158,11,0.6);"></div>
+                      <div class="w-2 h-2 rounded-sm" style="background:rgba(245,158,11,0.6);"></div>
+                      <div class="w-2 h-2 rounded-sm" style="background:rgba(245,158,11,0.6);"></div>
+                      <div class="w-2 h-2 rounded-sm" style="background:rgba(245,158,11,0.6);"></div>
+                      <div class="w-2 h-2 rounded-sm bg-fig-elevated"></div>
+                    </div>
+                    <!-- CTA chip — Figma blue tint -->
+                    <div class="h-3.5 w-full rounded" style="background:rgba(12,140,233,0.3);"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="px-2 py-1.5 bg-fig-surface flex items-center justify-between border-t border-fig-borderSubtle">
+                <span class="text-2xs text-fig-text font-medium">Variant B</span>
+                <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button class="text-2xs text-[#0D99FF] hover:text-accent-primary transition-colors px-1">Insert</button>
+                  <button class="text-2xs text-[#0D99FF] hover:text-accent-primary transition-colors px-1">Code</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Variant C — compact square thumbnail + CTA -->
+            <div class="variant-card rounded-md border border-fig-border overflow-hidden cursor-pointer
+                        group transition-colors duration-100">
+              <div class="h-28 bg-fig-surface flex items-center justify-center p-3">
+                <div class="w-full bg-fig-bg rounded-md p-2">
+                  <div class="flex gap-2 mb-2">
+                    <div class="w-14 h-14 rounded bg-fig-elevated shrink-0"></div>
+                    <div class="flex-1 min-w-0 pt-0.5">
+                      <div class="h-1.5 w-full rounded bg-fig-textQuaternary mb-1.5"></div>
+                      <div class="h-1.5 w-2/3 rounded bg-fig-textQuaternary mb-1.5"></div>
+                      <!-- Price chip — Figma blue tint -->
+                      <div class="h-2 w-1/3 rounded" style="background:rgba(12,140,233,0.4);"></div>
+                    </div>
+                  </div>
+                  <!-- CTA full-width chip — Figma blue tint -->
+                  <div class="h-4 w-full rounded" style="background:rgba(12,140,233,0.3);"></div>
+                </div>
+              </div>
+              <div class="px-2 py-1.5 bg-fig-surface flex items-center justify-between border-t border-fig-borderSubtle">
+                <span class="text-2xs text-fig-text font-medium">Variant C</span>
+                <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button class="text-2xs text-[#0D99FF] hover:text-accent-primary transition-colors px-1">Insert</button>
+                  <button class="text-2xs text-[#0D99FF] hover:text-accent-primary transition-colors px-1">Code</button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div><!-- /Tab 2 -->
+
+      <!-- ======================================= -->
+      <!-- DIVIDER between Tab 2 and Tab 3          -->
+      <!-- ======================================= -->
+      <div class="section-divider mx-3"></div>
+
+      <!-- ======================================= -->
+      <!-- TAB 3 · SYNC CONTROLS                   -->
+      <!-- ======================================= -->
+      <div class="p-3 space-y-3">
+
+        <!-- Section title — git branch icon, Figma blue #0D99FF (non-AI) -->
+        <div class="flex items-center gap-1.5">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+               stroke="#0D99FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="6" x2="6" y1="3" y2="15"/>
+            <circle cx="18" cy="6" r="3"/>
+            <circle cx="6"  cy="18" r="3"/>
+            <circle cx="6"  cy="6"  r="3"/>
+            <path d="M18 9a9 9 0 0 1-9 9"/>
+          </svg>
+          <span class="text-xs font-semibold text-fig-text">Sync Controls</span>
+        </div>
+
+        <!-- Connected repo info -->
+        <div class="p-2 rounded-md bg-fig-surface border border-fig-border">
+          <div class="flex items-center justify-between mb-1.5">
+            <div class="flex items-center gap-1.5">
+              <!-- GitHub icon -->
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                   stroke="#B3B3B3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/>
+                <path d="M9 18c-4.51 2-5-2-7-2"/>
+              </svg>
+              <span class="text-2xs text-fig-text font-mono">designstack/shop-ui</span>
+            </div>
+            <span class="flex items-center gap-1 text-2xs text-accent-success">
+              <span class="w-1.5 h-1.5 rounded-full bg-accent-success"></span>
+              Connected
+            </span>
+          </div>
+          <div class="text-2xs text-fig-textQuaternary">
+            Branch: <span class="text-fig-textTertiary font-mono">main</span>
+            &middot; Last sync: <span class="text-fig-textTertiary">2h ago</span>
+          </div>
+        </div>
+
+        <!-- Push / Pull buttons -->
+        <div class="grid grid-cols-2 gap-2">
+          <button class="plugin-btn h-8 rounded-md bg-fig-surface border border-fig-border
+                          text-2xs text-fig-textSecondary font-medium
+                          flex items-center justify-center gap-1 hover:bg-fig-elevated">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" x2="12" y1="3" y2="15"/>
+            </svg>
+            Push to Code
+          </button>
+          <button class="plugin-btn h-8 rounded-md bg-fig-surface border border-fig-border
+                          text-2xs text-fig-textSecondary font-medium
+                          flex items-center justify-center gap-1 hover:bg-fig-elevated">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" x2="12" y1="15" y2="3"/>
+            </svg>
+            Pull from Code
+          </button>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- Pending Changes -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-2xs text-fig-textTertiary font-medium uppercase tracking-wider">Pending Changes</span>
+            <span class="px-1.5 py-0.5 rounded text-2xs font-mono text-accent-warning"
+                  style="background:rgba(245,158,11,0.15);">3</span>
+          </div>
+          <div class="space-y-1">
+
+            <!-- Button.tsx — added -->
+            <div class="flex items-center justify-between px-1.5 py-1 rounded-md bg-fig-surface">
+              <div class="flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-accent-success shrink-0"></span>
+                <span class="text-2xs text-fig-text font-mono">Button.tsx</span>
+              </div>
+              <span class="text-2xs text-accent-success font-mono">+added</span>
+            </div>
+
+            <!-- Card.tsx — modified -->
+            <div class="flex items-center justify-between px-1.5 py-1 rounded-md bg-fig-surface">
+              <div class="flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-accent-warning shrink-0"></span>
+                <span class="text-2xs text-fig-text font-mono">Card.tsx</span>
+              </div>
+              <span class="text-2xs text-accent-warning font-mono">~modified</span>
+            </div>
+
+            <!-- tokens.json — modified -->
+            <div class="flex items-center justify-between px-1.5 py-1 rounded-md bg-fig-surface">
+              <div class="flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-accent-warning shrink-0"></span>
+                <span class="text-2xs text-fig-text font-mono">tokens.json</span>
+              </div>
+              <span class="text-2xs text-accent-warning font-mono">~modified</span>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Create Pull Request — Figma blue, no gradient -->
+        <button class="plugin-btn w-full h-8 rounded-md bg-[#0C8CE9] text-white text-xs font-medium
+                        flex items-center justify-center gap-1.5">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="18" cy="18" r="3"/>
+            <circle cx="6"  cy="6"  r="3"/>
+            <path d="M13 6h3a2 2 0 0 1 2 2v7"/>
+            <path d="M6 9v12"/>
+          </svg>
+          Create Pull Request
+        </button>
+
+        <div class="section-divider"></div>
+
+        <!-- Sync Log -->
+        <div>
+          <span class="text-2xs text-fig-textTertiary font-medium uppercase tracking-wider block mb-2">Sync Log</span>
+          <div class="space-y-2">
+
+            <div class="flex items-start gap-2">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none"
+                   stroke="#22C55E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"
+                   class="mt-0.5 shrink-0">
+                <path d="M20 6 9 17l-5-5"/>
+              </svg>
+              <div>
+                <div class="text-2xs text-fig-text">PR #47 merged</div>
+                <div class="text-2xs text-fig-textQuaternary">2 hours ago &middot; 4 files</div>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-2">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none"
+                   stroke="#22C55E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"
+                   class="mt-0.5 shrink-0">
+                <path d="M20 6 9 17l-5-5"/>
+              </svg>
+              <div>
+                <div class="text-2xs text-fig-text">Code changes pulled</div>
+                <div class="text-2xs text-fig-textQuaternary">1 day ago &middot; 3 components</div>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-2">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none"
+                   stroke="#22C55E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"
+                   class="mt-0.5 shrink-0">
+                <path d="M20 6 9 17l-5-5"/>
+              </svg>
+              <div>
+                <div class="text-2xs text-fig-text">PR #45 merged</div>
+                <div class="text-2xs text-fig-textQuaternary">3 days ago &middot; 12 files</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Bottom padding so last items clear the sticky footer -->
+        <div class="h-2"></div>
+      </div><!-- /Tab 3 -->
+
+    </div><!-- /Scrollable content -->
+
+    <!-- =========================================== -->
+    <!-- STICKY FOOTER                               -->
+    <!-- =========================================== -->
+    <div class="border-t border-fig-borderSubtle px-3 py-2
+                flex items-center justify-between bg-fig-bg shrink-0">
+
+      <!-- User: Mika Chen — avatar bg Figma blue #0C8CE9 -->
+      <div class="flex items-center gap-1.5">
+        <div class="w-5 h-5 rounded-full bg-[#0C8CE9] flex items-center justify-center shrink-0">
+          <span class="text-white font-semibold" style="font-size:7px; line-height:1;">MC</span>
+        </div>
+        <div class="flex flex-col leading-none gap-0.5">
+          <span class="text-2xs text-fig-textSecondary font-medium">Mika Chen</span>
+          <span class="text-fig-textQuaternary" style="font-size:9px;">Pro</span>
+        </div>
+      </div>
+
+      <!-- Token balance bar — fill is Figma blue via .token-bar-fill -->
+      <div class="flex items-center gap-1.5">
+        <div class="flex flex-col items-end gap-0.5 leading-none">
+          <span class="text-2xs text-fig-textQuaternary font-mono">6,240 tokens</span>
+          <span class="text-fig-textQuaternary" style="font-size:9px;">of 10,000</span>
+        </div>
+        <div class="h-1.5 w-14 rounded-full bg-fig-surface overflow-hidden">
+          <!-- ~62.4% fill — Figma blue -->
+          <div class="h-full rounded-full token-bar-fill" style="width:62.4%;"></div>
+        </div>
+      </div>
+
+    </div><!-- /Footer -->
+
+  </div>
+</body>
+</html>
