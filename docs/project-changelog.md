@@ -2,6 +2,72 @@
 
 All notable changes to NexusUI are documented here. Format based on [Keep a Changelog](https://keepachangelog.com/).
 
+## [1.1.0] — 2026-03-20
+
+### ✅ RELEASED — UI Refactoring Feature
+
+#### 🎉 Features
+- **UI Refactoring Module**: New NestJS module for component beautification
+  - ComponentScannerService — Scans GitHub repos for React components
+  - StyleExtractionService — AST-based style extraction using Babel & @babel/generator
+  - RefactorValidatorService — Validates style-only changes preserve component logic
+  - RefactoringProcessor — Bull queue for async AI-powered beautification
+  - RefactoringPrService — Auto-generates GitHub PRs with style-only diffs
+  - UIRefactoringService — Main service orchestration
+- **Database Models**: RefactoringJob, ComponentAudit with StyleIssueType enum
+- **Frontend Pages** (3 new routes):
+  - `/projects/[id]/refactor` — Component Audit page with scanning, filtering, batch selection
+  - `/projects/[id]/refactor/[componentId]` — Component Detail page with before/after preview, code diff, logic safety indicator
+  - `/projects/[id]/refactor/queue` — Refactoring Queue page with job tracking and PR links
+- **Components** (11 new):
+  - ComponentAuditCard, ComponentAuditFilters, ComponentAuditGrid
+  - BeforeAfterPreview, CodeDiffViewer, LogicSafetyBadge, TokenMappingPanel, BeautifyActionBar
+  - RefactoringJobList, RefactoringJobCard, ScanTriggerButton
+- **API Endpoints**:
+  - `POST /refactoring/:projectId/scan` — Scan repo for components
+  - `GET /refactoring/:projectId/components` — List component audits
+  - `GET /refactoring/:projectId/components/:id` — Component audit detail
+  - `POST /refactoring/:projectId/beautify` — Start beautification job
+  - `GET /refactoring/:projectId/jobs` — List refactoring jobs
+  - `GET /refactoring/:projectId/jobs/:id` — Job detail with diff preview
+  - `POST /refactoring/:projectId/generate-pr` — Generate PR from completed jobs
+- **Shared Types**: RefactoringStatus, StyleIssueType enums; DTOs for all endpoints
+- **AI Integration**: Leverages existing AIGenerationService with refactoring-specific prompts
+- **Credit Metering**: Charges credits per component beautification (configurable)
+- **Security**: Project ownership verification, input validation, logic safety validation
+
+#### 🐛 Bug Fixes
+- None (feature release)
+
+#### 🔒 Security
+- Logic preservation validation prevents AI from changing component behavior
+- AST-based diff comparison ensures style-only changes
+- Project ownership checks on all endpoints
+- Input validation for component paths and AI model selection
+
+#### 📚 Documentation
+- Updated system-architecture.md with Module 7 (UI Refactoring)
+- Updated development-roadmap.md with Phase 10 (complete)
+- Phase documentation in plans/260320-ui-refactoring-feature/
+
+#### 🧪 Testing
+- Integration test suite (ui-refactoring.integration.spec.ts)
+- 15+ test cases covering:
+  - Component scanning and audit creation
+  - Style extraction and issue detection
+  - Beautification pipeline (end-to-end)
+  - Logic validation and error handling
+  - PR generation and batch operations
+  - Credit deduction verification
+- All tests passing
+
+#### 📊 Metrics
+- **Database**: 2 new models (RefactoringJob, ComponentAudit), 1 new enum (RefactoringStatus, StyleIssueType)
+- **Backend**: 6 new services (~1,000 LOC), 1 new controller (~150 LOC)
+- **Frontend**: 11 new components (~1,100 LOC), 3 new pages (~220 LOC), 1 custom hook (~100 LOC)
+- **Test Coverage**: 15 test cases for UI refactoring module
+- **npm Packages**: 2 new (@babel/generator, diff-match-patch)
+
 ## [1.0.0] — 2026-03-19
 
 ### ✅ RELEASED — Production Ready

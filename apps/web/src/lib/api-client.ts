@@ -121,6 +121,24 @@ export function createApiClient(getToken: () => Promise<string | null>) {
       apiFetch(ROUTES.ADMIN_BILLING.PACKAGE_BY_ID(id), { method: 'PATCH', body: JSON.stringify(body) }, getToken),
     deleteCreditPackage: (id: string) =>
       apiFetch(ROUTES.ADMIN_BILLING.PACKAGE_BY_ID(id), { method: 'DELETE' }, getToken),
+
+    // ─── UI Refactoring ───────────────────────────────────────────────────────
+    getComponentAudits: (projectId: string) =>
+      apiFetch(`/refactoring/${projectId}/components`, {}, getToken),
+    getComponentAudit: (projectId: string, componentId: string) =>
+      apiFetch(`/refactoring/${projectId}/components/${componentId}`, {}, getToken),
+    scanComponents: (projectId: string, body: unknown) =>
+      apiFetch(`/refactoring/${projectId}/scan`, { method: 'POST', body: JSON.stringify(body) }, getToken),
+    beautifyComponent: (projectId: string, body: unknown) =>
+      apiFetch(`/refactoring/${projectId}/beautify`, { method: 'POST', body: JSON.stringify(body) }, getToken),
+    getRefactoringJobs: (projectId: string, params?: Record<string, string>) => {
+      const qs = params ? '?' + new URLSearchParams(params).toString() : '';
+      return apiFetch(`/refactoring/${projectId}/jobs${qs}`, {}, getToken);
+    },
+    getRefactoringJob: (projectId: string, jobId: string) =>
+      apiFetch(`/refactoring/${projectId}/jobs/${jobId}`, {}, getToken),
+    generatePr: (projectId: string, body: unknown) =>
+      apiFetch(`/refactoring/${projectId}/generate-pr`, { method: 'POST', body: JSON.stringify(body) }, getToken),
   };
 }
 

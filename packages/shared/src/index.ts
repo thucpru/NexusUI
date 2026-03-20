@@ -145,3 +145,41 @@ export {
   DEFAULT_CREDIT_PACKAGES,
   CREDIT_CURRENCY,
 } from './constants/credit-constants';
+
+// ─── UI Refactoring ────────────────────────────────────────────────────────────
+export type {
+  RefactoringStatus,
+  StyleIssueType,
+  LogicSafety,
+  StyleIssue,
+  StyleChanges,
+  LogicValidation,
+  ComponentAuditDto,
+  RefactoringJobDto,
+  ScanComponentsRequest,
+  BeautifyComponentRequest,
+  GeneratePrRequest,
+  ComponentAuditListResponse,
+  RefactoringJobListResponse,
+} from './types/refactoring-types';
+
+export {
+  scanComponentsSchema,
+  beautifyComponentSchema,
+  generatePrSchema,
+  refactoringJobQuerySchema,
+} from './validators/refactoring-validators';
+export type {
+  ScanComponentsInput,
+  BeautifyComponentInput,
+  GeneratePrInput,
+  RefactoringJobQueryInput,
+} from './validators/refactoring-validators';
+
+export {
+  REFACTORING_DEFAULTS,
+  REFACTORING_QUEUE_NAME,
+  REFACTORING_JOB_OPTIONS,
+  STYLE_ISSUE_LABELS,
+  LOGIC_SAFETY_LABELS,
+} from './constants/refactoring-constants';

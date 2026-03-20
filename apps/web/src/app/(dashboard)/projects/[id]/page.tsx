@@ -1,12 +1,14 @@
 'use client';
 
 import { use } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useProject } from '@/lib/hooks/use-projects';
 import { ProjectHeader } from '@/components/project/project-header';
 import { SyncStatusIndicator } from '@/components/project/sync-status-indicator';
 import { DesignSystemPreview } from '@/components/project/design-system-preview';
 import { GenerationHistoryList } from '@/components/project/generation-history-list';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, LayoutDashboard, Wand2 } from 'lucide-react';
 
 interface ProjectDetailPageProps {
   params: Promise<{ id: string }>;
@@ -16,6 +18,12 @@ interface ProjectDetailPageProps {
 export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
   const { id } = use(params);
   const { data: project, isLoading, error } = useProject(id);
+  const pathname = usePathname();
+
+  const tabs = [
+    { label: 'Overview', href: `/projects/${id}`, icon: LayoutDashboard },
+    { label: 'UI Refactor', href: `/projects/${id}/refactor`, icon: Wand2 },
+  ];
 
   if (isLoading) {
     return (
@@ -43,6 +51,28 @@ export default function ProjectDetailPage({ params }: ProjectDetailPageProps) {
   return (
     <div className="max-w-4xl mx-auto">
       <ProjectHeader project={project} />
+
+      {/* Project tabs */}
+      <div className="flex items-center gap-1 mb-5 border-b border-[#383838]">
+        {tabs.map(({ label, href, icon: Icon }) => {
+          const isActive = href === `/projects/${id}` ? pathname === href : pathname.startsWith(href);
+          return (
+            <Link
+              key={href}
+              href={href}
+              className={[
+                'inline-flex items-center gap-1.5 px-3 h-9 text-xs font-medium border-b-2 -mb-px transition-colors duration-150',
+                isActive
+                  ? 'border-[#0C8CE9] text-white'
+                  : 'border-transparent text-[#808080] hover:text-[#B3B3B3]',
+              ].join(' ')}
+            >
+              <Icon size={13} className={isActive ? 'text-[#0C8CE9]' : ''} />
+              {label}
+            </Link>
+          );
+        })}
+      </div>
 
       {/* Sync status */}
       <div className="mb-4 flex items-center gap-2">

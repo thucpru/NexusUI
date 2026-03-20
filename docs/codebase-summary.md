@@ -3,11 +3,11 @@
 **Last Updated**: 2026-03-19 | **Status**: Implementation Complete (Phases 1-9)
 
 ## Overview
-- **Total Files**: 210+ source files (TS/TSX)
+- **Total Files**: 230+ source files (TS/TSX)
 - **Apps**: 3 (web, api, plugin)
 - **Packages**: 3 (shared, database, ui)
-- **Lines of Code**: ~12,000+ production code
-- **Test Coverage**: 5 integration test suites, 45+ test cases
+- **Lines of Code**: ~14,000+ production code
+- **Test Coverage**: 6 integration test suites, 60+ test cases
 
 ## Tech Stack
 
@@ -49,6 +49,7 @@
 - **Containerization**: Docker Compose (local dev)
 - **CI/CD**: GitHub Actions
 - **Code Hosting**: GitHub
+- **Last Updated**: 2026-03-20
 
 ## File Structure
 
@@ -61,13 +62,15 @@ nexusui/
 │   │   │   ├── (dashboard)/          # Dashboard routes
 │   │   │   │   ├── admin/            # Admin panel
 │   │   │   │   ├── projects/         # Project management
+│   │   │   │   │   └── [id]/refactor/# UI Refactoring pages
 │   │   │   │   └── settings/         # User settings
 │   │   │   └── page.tsx              # Landing page
-│   │   ├── components/               # React components (24 files)
+│   │   ├── components/               # React components (35 files)
 │   │   │   ├── dashboard/            # Dashboard components
 │   │   │   ├── project/              # Project detail components
 │   │   │   ├── admin/                # Admin panel components
 │   │   │   ├── credits/              # Billing UI components
+│   │   │   ├── refactoring/          # UI Refactoring components (11 files)
 │   │   │   └── layout/               # Reusable layout components
 │   │   └── lib/                      # Utilities, hooks, API client
 │   ├── api/                          # NestJS Backend (92 files)
@@ -78,11 +81,12 @@ nexusui/
 │   │   │   │   ├── ai-generation/    # AI generation pipeline
 │   │   │   │   ├── billing/          # Credit system + Stripe
 │   │   │   │   ├── model-registry/   # Admin model config
-│   │   │   │   └── github-sync/      # GitHub bidirectional sync
+│   │   │   │   ├── github-sync/      # GitHub bidirectional sync
+│   │   │   │   └── ui-refactoring/   # UI component beautification
 │   │   │   ├── common/               # Shared guards, decorators, pipes
 │   │   │   ├── gateway/              # Socket.IO for real-time
 │   │   │   └── config/               # App configuration
-│   │   └── test/                     # Integration tests (5 suites)
+│   │   └── test/                     # Integration tests (6 suites)
 │   └── plugin/                       # Figma Plugin (37 files)
 │       ├── src/
 │       │   ├── ui/                   # Preact components (12 files)
@@ -150,6 +154,16 @@ nexusui/
 - Webhook signature verification
 - Atomic credit deduction for generations
 
+### 7. UI Refactoring Module
+- Component scanning from GitHub repos
+- AST-based style extraction (Babel parser)
+- Style issue detection (spacing, colors, responsive, etc.)
+- Logic preservation validation
+- AI-powered component beautification (style-only)
+- GitHub PR generation for refactored components
+- Credit metering per component beautification
+- Real-time status tracking via WebSocket
+
 ## Frontend Routes
 
 | Route | Page | Purpose |
@@ -160,6 +174,9 @@ nexusui/
 | `/dashboard` | Dashboard | Overview, recent activity |
 | `/projects` | Projects | Project list, create |
 | `/projects/[id]` | Project Detail | Project management, design system, generations |
+| `/projects/[id]/refactor` | Component Audit | UI refactoring, component scanning |
+| `/projects/[id]/refactor/[componentId]` | Component Detail | Before/after preview, code diff, beautification |
+| `/projects/[id]/refactor/queue` | Refactoring Queue | Job tracking, PR status |
 | `/settings` | Settings | User preferences |
 | `/settings/credits` | Billing | Credit packages, purchase, history |
 | `/admin/models` | Models | AI model registry (admin) |
@@ -199,9 +216,9 @@ nexusui/
 
 ## Testing
 
-- **Integration Tests**: NestJS modules (app, user, billing, ai-generation)
+- **Integration Tests**: NestJS modules (app, user, billing, ai-generation, github-sync, ui-refactoring)
 - **Test Framework**: Jest
-- **Coverage**: 45+ test cases
+- **Coverage**: 60+ test cases
 - **No Mocks**: External services tested with real clients
 
 ## Performance Optimizations
@@ -277,9 +294,9 @@ npm run db:deploy
 
 ## Key Metrics
 
-- **Codebase**: 210+ source files, 12,000+ LOC
+- **Codebase**: 230+ source files, 14,000+ LOC
 - **Build Time**: ~30s (Turbo cache)
 - **Bundle Size**: Web ~180KB (gzip), Plugin ~142KB
 - **API Response Time**: <100ms (cached)
-- **Test Execution**: <10s (Jest, parallel)
+- **Test Execution**: <15s (Jest, parallel, 6 suites)
 - **Deployment**: <5min (Vercel + Railway)

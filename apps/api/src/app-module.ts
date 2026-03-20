@@ -7,7 +7,7 @@ import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { BullModule } from '@nestjs/bull';
-import { appConfig } from './config/app-config';
+import { appConfig, validateEnv } from './config/app-config';
 import { DatabaseModule } from './database/database-module';
 import { UserModule } from './modules/user/user-module';
 import { ProjectModule } from './modules/project/project-module';
@@ -17,14 +17,18 @@ import { ModelRegistryModule } from './modules/model-registry/model-registry-mod
 import { AiGenerationModule } from './modules/ai-generation/ai-generation-module';
 import { GatewayModule } from './gateway/gateway.module';
 import { GitHubSyncModule } from './modules/github-sync/github-sync.module';
+import { UIRefactoringModule } from './modules/ui-refactoring/ui-refactoring-module';
 
 @Module({
   imports: [
     // Config — validate env at startup
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [appConfig],
-      validate: appConfig,
+      envFilePath: [
+        '.env',
+        '../../.env',
+      ],
+      validate: (env: Record<string, string>) => validateEnv(env as unknown as NodeJS.ProcessEnv),
     }),
 
     // Rate limiting: 100 requests per 60 seconds per IP
@@ -58,6 +62,9 @@ import { GitHubSyncModule } from './modules/github-sync/github-sync.module';
 
     // GitHub App sync (Phase 7)
     GitHubSyncModule,
+
+    // UI Refactoring (Phase 8)
+    UIRefactoringModule,
   ],
   providers: [
     // Bind ThrottlerGuard globally — applies rate limiting to all routes

@@ -30,6 +30,6 @@ import { GitHubWebhookHandlerService } from './github-webhook-handler.service';
     ComponentToFigmaMapperService,
     GitHubWebhookHandlerService,
   ],
-  exports: [GitHubSyncService],
+  exports: [GitHubSyncService, GitHubBranchService, GitHubRepoReaderService, GitHubAppAuthService],
 })
 export class GitHubSyncModule {}

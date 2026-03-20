@@ -154,6 +154,16 @@
 - Routes: `POST /sync/design-to-code`, `POST /sync/code-to-design`, `POST /webhooks/github`
 - Features: Bidirectional sync, PR creation, conflict handling
 
+#### 7. UI Refactoring Module
+- `UIRefactoringService`: Main orchestration
+- `ComponentScannerService`: Repository scanning, issue detection
+- `StyleExtractionService`: AST-based style extraction from components
+- `RefactorValidatorService`: Logic preservation validation
+- `RefactoringProcessor`: Bull queue job handler for beautification
+- `RefactoringPrService`: GitHub PR generation for refactored components
+- Routes: `POST /refactoring/:projectId/scan`, `GET /refactoring/:projectId/components`, `POST /refactoring/:projectId/beautify`, `GET /refactoring/:projectId/jobs`, `POST /refactoring/:projectId/generate-pr`
+- Features: Component scanning, style-only beautification, logic safety validation, PR auto-generation
+
 #### Common Infrastructure
 - **Guards**: `ClerkAuthGuard` (JWT), `AdminRoleGuard`
 - **Decorators**: `@CurrentUser`, `@Roles`
