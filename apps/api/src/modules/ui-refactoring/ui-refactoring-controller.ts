@@ -88,9 +88,9 @@ export class UIRefactoringController {
   @Get(':projectId/components/:componentId')
   async getComponent(
     @Param('componentId') componentId: string,
-    @CurrentUser() _user: AuthenticatedUser,
+    @CurrentUser() user: AuthenticatedUser,
   ): Promise<ApiResponse<ComponentAuditDto>> {
-    const result = await this.refactoringService.getComponentAudit(componentId);
+    const result = await this.refactoringService.getComponentAudit(componentId, user.id);
     return { success: true, data: result };
   }
 

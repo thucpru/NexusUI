@@ -162,7 +162,11 @@ export class ComponentScannerService {
   async getComponentAudit(id: string): Promise<ComponentAuditDto> {
     const audit = await this.db.client.componentAudit.findUnique({ where: { id } });
     if (!audit) throw new NotFoundException(`Component audit ${id} not found`);
+    return this.toAuditDto(audit);
+  }
 
+  /** Convert a Prisma ComponentAudit record to DTO */
+  toAuditDto(audit: { id: string; filePath: string; componentName: string; styleIssues: unknown; issueCount: number; estimatedCredits: number; logicSafety: string; lastScannedAt: Date }): ComponentAuditDto {
     return {
       id: audit.id,
       filePath: audit.filePath,

@@ -177,6 +177,25 @@ export class RefactoringProcessor {
         where: { id: jobId },
         data: { status: RefactoringStatus.FAILED, errorMessage },
       });
+      // Refund credits on final failure
+      if (job && job.creditsUsed > 0) {
+        await this.db.client.user.update({
+          where: { id: job.userId },
+          data: { creditBalance: { increment: job.creditsUsed } },
+        });
+        await this.db.client.creditLedger.create({
+          data: {
+            userId: job.userId,
+            operationType: 'GENERATION_REFUND',
+            amount: job.creditsUsed,
+            balanceAfter: 0, // Will be overwritten by trigger or recalc
+            description: `Refund for failed refactoring job ${jobId}`,
+            referenceId: jobId,
+            referenceType: 'REFACTORING_JOB',
+          },
+        });
+        this.logger.log(`Refunded ${job.creditsUsed} credits for failed job ${jobId}`);
+      }
       if (job) this.emitProgress(job.projectId, jobId, 'FAILED', 0);
     } catch (err) {
       this.logger.error(`Failed to update job ${jobId} to FAILED state`, err);

@@ -82,21 +82,22 @@ export class UIRefactoringService {
     const parts = componentPath.split('/');
     const componentName = (parts[parts.length - 1] ?? componentPath).replace(/\.(tsx|jsx)$/, '');
 
-    // Create RefactoringJob record
-    const job = await this.db.client.refactoringJob.create({
-      data: {
-        projectId,
-        userId,
-        componentPath,
-        componentName,
-        aiModelId,
-        creditsUsed: creditsCost,
-        status: 'PENDING',
-      },
+    // Create job and deduct credits atomically
+    const job = await this.db.client.$transaction(async (tx) => {
+      const created = await tx.refactoringJob.create({
+        data: {
+          projectId,
+          userId,
+          componentPath,
+          componentName,
+          aiModelId,
+          creditsUsed: creditsCost,
+          status: 'PENDING',
+        },
+      });
+      await this.creditMetering.deductCredits(userId, creditsCost, created.id);
+      return created;
     });
-
-    // Deduct credits before enqueue
-    await this.creditMetering.deductCredits(userId, creditsCost, job.id);
 
     // Enqueue Bull job
     await this.refactoringQueue.add(
@@ -118,14 +119,19 @@ export class UIRefactoringService {
     const project = await this.db.client.project.findFirst({ where: { id: projectId, userId } });
     if (!project) throw new ForbiddenException('Project not found or access denied');
 
-    const jobs = await this.db.client.refactoringJob.findMany({
-      where: { projectId, ...(query.status && { status: query.status }) },
-      orderBy: { createdAt: 'desc' },
-      take: query.limit,
-      ...(query.cursor && { cursor: { id: query.cursor }, skip: 1 }),
-    });
+    const [jobs, total] = await Promise.all([
+      this.db.client.refactoringJob.findMany({
+        where: { projectId, ...(query.status && { status: query.status }) },
+        orderBy: { createdAt: 'desc' },
+        take: query.limit,
+        ...(query.cursor && { cursor: { id: query.cursor }, skip: 1 }),
+      }),
+      this.db.client.refactoringJob.count({
+        where: { projectId, ...(query.status && { status: query.status }) },
+      }),
+    ]);
 
-    return { jobs: jobs.map((j) => this.toJobDto(j)), total: jobs.length };
+    return { jobs: jobs.map((j) => this.toJobDto(j)), total };
   }
 
   /** Get a single refactoring job by ID */
@@ -143,9 +149,15 @@ export class UIRefactoringService {
     return this.scanner.getComponentAudits(projectId);
   }
 
-  /** Get a single component audit */
-  async getComponentAudit(id: string): Promise<ComponentAuditDto> {
-    return this.scanner.getComponentAudit(id);
+  /** Get a single component audit (with ownership check) */
+  async getComponentAudit(id: string, userId: string): Promise<ComponentAuditDto> {
+    const audit = await this.db.client.componentAudit.findUnique({
+      where: { id },
+      include: { project: { select: { userId: true } } },
+    });
+    if (!audit) throw new NotFoundException('Component audit not found');
+    if (audit.project.userId !== userId) throw new ForbiddenException('Access denied');
+    return this.scanner.toAuditDto(audit);
   }
 
   private toJobDto(job: Awaited<ReturnType<typeof this.db.client.refactoringJob.findUniqueOrThrow>>): RefactoringJobDto {
