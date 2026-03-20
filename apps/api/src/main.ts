@@ -29,7 +29,10 @@ async function bootstrap(): Promise<void> {
 
   // Global API prefix
   app.setGlobalPrefix('api/v1', {
-    exclude: ['health'], // Health check at root level /health
+    exclude: [
+      'health',       // Health check at root level /health
+      'webhooks/(.*)', // Webhook endpoints — external providers call without prefix
+    ],
   });
 
   // Global validation pipe — activates class-validator DTOs on all endpoints

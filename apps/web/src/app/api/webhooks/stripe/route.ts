@@ -40,9 +40,9 @@ export async function POST(req: NextRequest) {
   }
 
   // Forward verified event to NestJS API for processing
-  const apiUrl = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:3001';
+  const apiUrl = process.env['NEXT_PUBLIC_API_URL'] ?? 'http://localhost:4000';
   try {
-    const res = await fetch(`${apiUrl}/api/v1/credits/stripe-webhook`, {
+    const res = await fetch(`${apiUrl}/webhooks/stripe`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

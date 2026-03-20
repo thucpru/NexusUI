@@ -26,10 +26,11 @@ export const ROUTES = {
     BY_ID: (id: string) => `/generate/${id}`,
     BY_PROJECT: (projectId: string) => `/generate/project/${projectId}`,
   },
+  /** @deprecated Use BILLING instead — no /credits controller exists */
   CREDITS: {
-    BALANCE: '/credits/balance',
-    HISTORY: '/credits/history',
-    PURCHASE: '/credits/purchase',
+    BALANCE: '/billing/balance',
+    HISTORY: '/billing/history',
+    PURCHASE: '/billing/checkout',
   },
   BILLING: {
     CHECKOUT: '/billing/checkout',
